@@ -180,7 +180,7 @@ function getRequirejsConfigHelper(type, inPath, outPath, isStartup) {
 				baseUrl: getSrcFile('scripts'),
 				mainConfigFile: getSrcFile('scripts/config.js'),
 				name: inPath,
-				optimize: 'none',
+				optimize: 'uglify2',
 				out: outPath,
 				preserveLicenseComments: false,
 				generateSourceMaps: true,
