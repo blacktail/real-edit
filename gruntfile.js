@@ -51,7 +51,7 @@ module.exports = function (grunt) {
 		/*generate templates for debug mode*/
 		templates_debug: {
 			options: {
-				base: 'scripts'
+				base: getSrcFile('scripts')
 			},
 			partials: {
 				options: {
@@ -114,15 +114,15 @@ module.exports = function (grunt) {
 			options: {
 				force: true
 			},
-			all: ['gruntfile.js', 'scripts/**/*.js', '!scripts/**/.*_compiled.js',
-				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*']
+			all: getSrcFiles(['scripts/**/*.js', '!scripts/**/.*_compiled.js',
+				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*'])
 		},
 
 		clean: {
 			options: {
 				force: true
 			},
-			temporary: ['scripts/**/.auto_*', 'scripts/**/.*_compiled*', 'scripts/**/.*.js'],
+			temporary: getSrcFiles(['scripts/**/.auto_*', 'scripts/**/.*_compiled*', 'scripts/**/.*.js']),
 			dist: [destDir]
 		}
 	});
@@ -180,7 +180,7 @@ function getRequirejsConfigHelper(type, inPath, outPath, isStartup) {
 				baseUrl: getSrcFile('scripts'),
 				mainConfigFile: getSrcFile('scripts/config.js'),
 				name: inPath,
-				optimize: 'uglify2',
+				optimize: 'none',
 				out: outPath,
 				preserveLicenseComments: false,
 				generateSourceMaps: true,
@@ -212,9 +212,9 @@ function getTemplatePathsConfig(type, isDebug) {
 
 	if (type == 'partials') {
 		if (isDebug) {
-			fileConfig[getSrcFile('scripts/common/templates/.auto_partials.js')] = [getSrcFile('scripts/common/templates/partials/**/*.hb')];
+			fileConfig[getSrcFile('scripts/common/templates/.auto_partials.js')] = getSrcFiles(['scripts/common/templates/partials/**/*.hb']);
 		} else {
-			fileConfig[getSrcFile('scripts/common/templates/.partials_compiled.js')] =  [getSrcFile('scripts/common/templates/partials/**/*.hb')];
+			fileConfig[getSrcFile('scripts/common/templates/.partials_compiled.js')] = getSrcFiles(['scripts/common/templates/partials/**/*.hb']);
 		}
 	}
 
@@ -257,7 +257,7 @@ function getTemplatePathsConfig(type, isDebug) {
 
 function processHandlebarsTemplateName(isPartial) {
 	return function (filePath) {
-		var fileName = filePath.replace(/^scripts\//, '').replace(isPartial ? /templates\/partials\// : /templates\//, '').replace(/\..*$/, '');
+		var fileName = filePath.replace(new RegExp('^' + getSrcFile('scripts/')), '').replace(isPartial ? /templates\/partials\// : /templates\//, '').replace(/\..*$/, '');
 		return fileName.replace(/\/main$/, '');
 	};
 }
@@ -349,7 +349,13 @@ function getFiles(root, paths) {
 	root = root.replace(/\/$/g, '');
 
 	_.each(paths, function (path) {
-		results.push(root + path.replace(/^([^\/])(.*)/, '/$1$2'));
+		var isNo = false;
+		if (path[0] == '!') {
+			path = path.slice(1);
+			isNo = true;
+		}
+
+		results.push((isNo ? '!': '') + root + path.replace(/^([^\/])(.*)/, '/$1$2'));
 	});
 
 	return results;

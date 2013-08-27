@@ -1,1 +1,12 @@
-{"version":3,"file":"main.js","sources":["../../../public_src/scripts/index/main.js"],"names":[],"mappings":"AACA,OAAA,gBACA,WACA,QAAA,IAAA","sourcesContent":["\ndefine('index/main',[\r\n], function () {\r\n\tconsole.log('index main');\r\n});\r\n"]}
+{
+  "version": 3,
+  "file": "/home/percy/work/real-edit/public/scripts/index/main.js",
+  "sources": [
+    "../../../public_src/scripts/index/main.js"
+  ],
+  "names": [],
+  "mappings": "AAAA;AACA;AACA;AACA;AACA;AACA",
+  "sourcesContent": [
+    "\ndefine('index/main',[\r\n], function () {\r\n\tconsole.log('index main');\r\n});\r\n"
+  ]
+}
