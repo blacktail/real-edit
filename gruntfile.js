@@ -89,8 +89,8 @@ module.exports = function (grunt) {
 			jade: {
 				options: {
 					processContent: function (content, srcPath) {
-						content = content.replace(/src=(.*)\.js.*$/m, 'src=$1.js?v=' + buildVersion + '\')')
-							.replace(/href=(.*)\.css.*$/mg, 'href=$1.css?v=' + buildVersion + '\')');
+						content = content.replace(/src=(.*)\.js[^'">\s]*/mg, 'src=$1.js?v=' + buildVersion)
+							.replace(/href=(.*)\.css[^'">\s]*/mg, 'href=$1.css?v=' + buildVersion);
 
 						return content;
 					}

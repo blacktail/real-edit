@@ -2066,7 +2066,7 @@ require.config({
 		'bootstrap-modal': ['jquery']
 	},
 
-	urlArgs: "v=20130827165336%2B0800"
+	urlArgs: "v=20130827202933%2B0800"
 });
 
 require(["main"]);
