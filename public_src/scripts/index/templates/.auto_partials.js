@@ -1,0 +1,3 @@
+define(["handlebars"], function (Handlebars) {
+
+});

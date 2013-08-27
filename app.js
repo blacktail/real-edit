@@ -14,8 +14,12 @@ app.configure(function () {
 	app.use(express.static(__dirname + '/public'));
 });
 
-io.on('connection', function () {
+io.sockets.on('connection', function (socket) {
+	socket.emit('news', {hello: 'world'});
 
+	socket.on('other event', function (data) {
+		console.log(data);
+	});
 });
 
 app.get('/', function (req, res) {
