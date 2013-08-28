@@ -2,8 +2,6 @@
 
 npm install
 
-bower install
-
 if [ ! -d "./logs" ]; then
 mkdir logs
 fi
