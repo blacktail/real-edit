@@ -1,6 +1,7 @@
 var _ = require('lodash'),
 	packages = {
-		'index': 'views/index.html'
+		'index': 'views/index.html',
+		'edit': 'views/edit.html'
 	},
 	srcDir = 'public_src',
 	destDir = 'public';

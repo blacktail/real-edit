@@ -1,18 +1,24 @@
 define([
 	'lodash',
 	'jquery',
+	'backbone',
+	'handlebars',
 	'app',
+	'routers',
 	'socket.io'
-], function (_, $, app, io) {
-	$(function () {
-		$('#fileName').keydown(function (event) {
-			if (event.which == 13) {
-				var fileName = $.trim($(this).val()) || 'new';
+], function (_, $, Backbone, Handlebars, app, routers, io) {
+	app.views = [];
 
-				location.href = encodeURIComponent(fileName);
-
-				event.preventDefault();
-			}
-		});
+	_.each(routers, function (Router) {
+		if (Router && _.isFunction(Router)) {
+			new Router();
+		}
 	});
+
+	Backbone.history.start({
+		pushState: true,
+		hashChange: false
+	});
+
+	console.log('Backbone.history.start!');
 });
