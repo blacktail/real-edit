@@ -115,7 +115,7 @@ module.exports = function (grunt) {
 				force: true
 			},
 			all: getSrcFiles(['scripts/**/*.js', '!scripts/**/.*_compiled.js',
-				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*'])
+				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*', '!scripts/common/socket.io.js'])
 		},
 
 		clean: {
@@ -291,7 +291,7 @@ function getWatchConfig() {
 				nospawn: true
 			},
 			files: getSrcFiles(['scripts/**/*.js', '!scripts/**/.*_compiled.js', '!scripts/startup.js',
-				'!scripts/**/.auto_*.js', '!scripts/config.js']),
+				'!scripts/**/.auto_*.js', '!scripts/config.js', '!scripts/common/socket.io.js']),
 			tasks: ['jshint']
 		},
 		less: {

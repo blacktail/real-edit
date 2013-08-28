@@ -11,6 +11,14 @@ app.configure(function () {
 
 	app.set('view engine', 'html');
 	app.set('views', __dirname + '/views');
+	
+});
+
+app.configure('development', function () {
+	app.use(express.static(__dirname + '/public_src'));
+});
+
+app.configure('production', function () {
 	app.use(express.static(__dirname + '/public'));
 });
 
@@ -29,5 +37,5 @@ app.get('/', function (req, res) {
 });
 
 server.listen(3000, function (err) {
-	console.log("Business server listening on port %d in %s mode", server.port, app.settings.env);
+	console.log("Business server listening on port %d in %s mode", 3000, app.settings.env);
 });
