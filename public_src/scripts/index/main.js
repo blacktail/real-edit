@@ -3,9 +3,8 @@ define([
 	'app',
 	'backbone'
 ], function (IndexView, app, Backbone) {
-	console.log('main.js')
 	return function (router, routeName) {
-		var model = new Backbone.Model,
+		var model = new Backbone.Model(),
 			indexView = new IndexView({
 				model: model,
 			});

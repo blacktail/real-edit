@@ -7,7 +7,6 @@ define([
 ], function(_, Backbone, templates, $, utils) {
 	var EditView = Backbone.View.extend({
 		tagName: 'div',
-		className: 'container',
 		id: 'editPage',
 
 		template: templates.edit,

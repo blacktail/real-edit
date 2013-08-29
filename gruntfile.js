@@ -102,6 +102,11 @@ module.exports = function (grunt) {
 				files: [
 					{expand: true, src: getSrcFiles(['css/**/img/*.*', 'img/*.*']), dest: destDir, filter: 'isFile'}
 				]
+			},
+			ace: {
+				files: [
+					{expand: true, cwd: 'public_src', src: 'ace-builds-1.1.01/**', dest: destDir}
+				]
 			}
 		},
 
