@@ -4,30 +4,32 @@
 			<a class="navbar-brand" href="#">RealEdit</a>
 		</div>
 		<div class="collapse navbar-collapse navbar-ex2-collapse">
-			<button type="button" class="btn btn-default btn-xs">New</button>
+			<button type="button" class="btn btn-default navbar-btn btn-xs">New</button>
 			<button type="button" class="btn btn-default btn-xs">History</button>
 			<button type="button" class="btn btn-default btn-xs">Download</button>
 			<div class="user-info pull-right">
-				<a href="#">Percy</a>
+				<a href="#" id="userName">{{username}}</a>
 			</div>
 
 			<div class="pro-lang pull-right">
 				<span>Languages</span>
-				<select id="progLang">
-					<option value="c">c</option>
-					<option value="cpp">c++</option>
-					<option value="javascript">javascript</option>
-				</select>
+				{{#select language id="progLang"}}
+					{{> common/languages}}
+				{{/select}}
 			</div>
 
 			<div class="key-binding pull-right">
 				<span>Key Binding</span>
-				<select id="keyBinding">
-					<option value="ace">ace</option>
-					<option value="vim">vim</option>
-					<option value="emacs">emacs</option>
-					<option value="custom">custom</option>
-				</select>
+				{{#select keybindi id="keyBinding"}}
+					{{> common/keybindings}}
+				{{/select}}
+			</div>
+
+			<div class="editor-theme pull-right">
+				<span>Theme</span>
+				{{#select theme id="editorTheme"}}
+					{{> common/themes}}
+				{{/select}}
 			</div>
         </div>
 

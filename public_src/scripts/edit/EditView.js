@@ -3,8 +3,9 @@ define([
 	'backbone',
 	'edit/templates',
 	'jquery',
-	'common/utils'
-], function(_, Backbone, templates, $, utils) {
+	'common/utils',
+	'common/PromptView'
+], function(_, Backbone, templates, $, utils, PromptView) {
 	var EditView = Backbone.View.extend({
 		tagName: 'div',
 		id: 'editPage',
@@ -12,14 +13,106 @@ define([
 		template: templates.edit,
 
 		events: {
+			'click #userName': 'changeUserName',
+			'change #keyBinding': 'changeKeyBinding',
+			'change #progLang': 'changeProgrammingLanguage',
+			'change #editorTheme': 'changeEditorTheme'
 		},
 
 		initialize: function(options) {
-			this.render();
+			this.listenTo(this.model, 'change', this.render);
+			this.listenTo(this.model, 'change:username', this.updateUserInfo);
+			this.listenTo(this.model, 'change:language', this.updateEditorStatus);
+			this.listenTo(this.model, 'change:keybindi', this.updateEditorStatus);
+			this.listenTo(this.model, 'change:theme', this.updateEditorStatus);
 		},
 
 		render: function(model) {
+			// make only render once
+			if (this.rendered) {
+				return;
+			}
+
 			this.$el.html(this.template(this.model.toJSON()));
+
+			var that = this;
+			// init ace editor
+			if (typeof ace == 'undefined') {
+				utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/ace.js', function() {
+					that.initEditor();
+				});
+				
+			} else {
+				that.initEditor();
+			}
+
+			if (!model.get('username')) {
+				this.$('#userName').html('unknown');
+				this.changeUserName();
+			}
+
+			this.rendered = true;
+		},
+
+		initEditor: function () {
+			window.aceEditor = this.editor = ace.edit(this.$('#editor')[0]);
+			this.$('#editor').height($('.sidebar').height());
+			
+			this.updateEditorStatus();
+
+			this.editor.focus();
+
+			utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/keybinding-emacs.js', function() {
+			});
+			utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/keybinding-vim.js', function() {
+			});
+		},
+
+		updateEditorStatus: function () {
+			if (this.editor) {
+				this.editor.setTheme(this.model.get('theme'));
+				this.editor.getSession().setMode('ace/mode/' + this.model.get('language'));
+
+				var binding = this.model.get('keybindi');
+				this.editor.setKeyboardHandler(binding ? 'ace/keyboard/' + binding : null);
+			}
+		},
+
+		updateUserInfo: function () {
+			this.$('#userName').html(this.model.get('username') || 'unknown');
+		},
+
+		changeUserName: function () {
+			var that = this;
+
+			new PromptView({
+				title: 'RealEdit',
+				prompt: 'Please enter your user name:',
+				callback: function (name) {
+					var oldName = that.$('#userName').html();
+
+					that.model.set('username', name || oldName || '');
+
+					if (name) {
+						localStorage.realEditUserName = name;
+					}
+				}
+			});	
+		},
+
+		changeKeyBinding: function () {
+			var keybinding = localStorage.realEditKeyBindi = this.$('#keyBinding').val();
+			this.model.set('keybindi', keybinding);
+		},
+
+		changeProgrammingLanguage: function () {
+			var lang = localStorage.realEditProgLang = this.$('#progLang').val();
+			this.model.set('language', lang);
+		},
+
+		changeEditorTheme: function () {
+			var theme = localStorage.realEditTheme = this.$('#editorTheme').val();
+			this.model.set('theme', theme);
 		}
 	});
 

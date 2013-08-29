@@ -6,7 +6,9 @@ define([
 	'app',
 	'routers',
 	'socket.io',
-	'bootstrap-dropdown'
+	'bootstrap-dropdown',
+	'bootstrap-modal',
+	'bootstrap-transition'
 ], function (_, $, Backbone, Handlebars, app, routers, io) {
 	app.views = [];
 
