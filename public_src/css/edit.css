@@ -25,12 +25,14 @@
     border-radius: 5px;
 }
 
-.user-list {
-	min-height: 120px;
+.user-list .panel-body{
+	height: 70px;
+	overflow: auto;
 }
 
 .messages .panel-body {
 	height: 300px;
+	min-height: 200px;
 	overflow: auto;
 }
 

@@ -64,6 +64,7 @@ define([
 
 		initEditor: function () {
 			window.aceEditor = this.editor = ace.edit(this.$('#editor')[0]);
+			this.$('.messages .panel-body').height($(window).height() - 421);
 			this.$('#editor').height($('.sidebar').height());
 			
 			this.updateEditorStatus();
