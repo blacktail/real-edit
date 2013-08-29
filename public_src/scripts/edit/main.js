@@ -5,11 +5,13 @@ define([
 	'jquery',
 	'common/utils',
 	'common/PromptView',
-], function(EditView, app, Backbone, $, utils, ModalView) {
-	return function(router, routeName) {
+	'socket.io'
+], function(EditView, app, Backbone, $, utils, ModalView, io) {
+	return function(router, routeName, initData, fileName) {
 		var model = new Backbone.Model(),
 			editView = new EditView({
 				model: model,
+				fileName: fileName
 			});
 
 		app.views.push(editView);
@@ -17,7 +19,7 @@ define([
 		$('#main').append(editView.el);
 
 		model.set({
-			username: localStorage.realEditUserName || '',
+			user: localStorage.realEditUser || '',
 			language: localStorage.realEditProgLang || 'javascript',
 			keybindi: localStorage.realEditKeyBindi || '',
 			theme: localStorage.realEditTheme || 'textmate'

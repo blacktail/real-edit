@@ -16,15 +16,23 @@ define([
 			'click #userName': 'changeUserName',
 			'change #keyBinding': 'changeKeyBinding',
 			'change #progLang': 'changeProgrammingLanguage',
-			'change #editorTheme': 'changeEditorTheme'
+			'change #editorTheme': 'changeEditorTheme',
+			'keydown #message': 'chat'
 		},
 
 		initialize: function(options) {
 			this.listenTo(this.model, 'change', this.render);
-			this.listenTo(this.model, 'change:username', this.updateUserInfo);
+			this.listenTo(this.model, 'change:user', this.updateUserInfo);
 			this.listenTo(this.model, 'change:language', this.updateEditorStatus);
 			this.listenTo(this.model, 'change:keybindi', this.updateEditorStatus);
 			this.listenTo(this.model, 'change:theme', this.updateEditorStatus);
+
+			this.fileName = options.fileName;
+
+			this.socket = io.connect('/');
+			this.socket.on('connect', _.bind(this.onSocketConnect, this));
+			this.socket.on('user:change', _.bind(this.onUserChange, this));
+			this.socket.on('newmsg', _.bind(this.onNewMessage, this));
 		},
 
 		render: function(model) {
@@ -46,7 +54,7 @@ define([
 				that.initEditor();
 			}
 
-			if (!model.get('username')) {
+			if (!model.get('user')) {
 				this.$('#userName').html('unknown');
 				this.changeUserName();
 			}
@@ -79,7 +87,7 @@ define([
 		},
 
 		updateUserInfo: function () {
-			this.$('#userName').html(this.model.get('username') || 'unknown');
+			this.$('#userName').html(this.model.get('user') || 'unknown');
 		},
 
 		changeUserName: function () {
@@ -91,10 +99,10 @@ define([
 				callback: function (name) {
 					var oldName = that.$('#userName').html();
 
-					that.model.set('username', name || oldName || '');
+					that.model.set('user', name || oldName || '');
 
 					if (name) {
-						localStorage.realEditUserName = name;
+						localStorage.realEditUser = name;
 					}
 				}
 			});	
@@ -113,6 +121,36 @@ define([
 		changeEditorTheme: function () {
 			var theme = localStorage.realEditTheme = this.$('#editorTheme').val();
 			this.model.set('theme', theme);
+		},
+
+		chat: function (event) {
+			if (event.which == 13) {
+				var msg = $.trim(this.$('#message').val());
+				this.socket.emit('chat', {
+					chanel: this.fileName,
+					msg: msg,
+					user: this.model.get('user') || 'unknown'
+				});
+
+				this.$('#message').val('');
+			}
+		},
+
+		onSocketConnect: function () {
+			this.socket.emit('begin', {
+				chanel: this.fileName,
+				user: this.model.get('user') || 'unknown'
+			});
+		},
+
+		onNewMessage: function (data) {
+			this.$('#msgList').append(templates['edit/message'](data));
+		},
+
+		onUserChange: function (data) {
+			this.$('#usersList').html(templates['edit/users']({
+				users: data
+			}));
 		}
 	});
 

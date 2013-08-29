@@ -8,7 +8,7 @@
 			<button type="button" class="btn btn-default btn-xs">History</button>
 			<button type="button" class="btn btn-default btn-xs">Download</button>
 			<div class="user-info pull-right">
-				<a href="#" id="userName">{{username}}</a>
+				<a href="#" id="userName">{{user}}</a>
 			</div>
 
 			<div class="pro-lang pull-right">

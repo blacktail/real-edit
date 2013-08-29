@@ -2,12 +2,13 @@ var express = require('express'),
 	app = express(),
 	server = require('http').createServer(app),
 	io = require('socket.io').listen(server),
-	cons = require('consolidate');
+	cons = require('consolidate'),
+	utils = require('./lib/utils');
 
 app.engine('html', cons.handlebars);
 
 app.configure(function () {
-	app.use(express.logger());
+	//app.use(express.logger());
 
 	app.set('view engine', 'html');
 	app.set('views', __dirname + '/views');
@@ -22,18 +23,16 @@ app.configure('production', function () {
 	app.use(express.static(__dirname + '/public', {maxAge: 365 * 24 * 60 * 60 * 1000, hidden: true}));
 });
 
-io.sockets.on('connection', function (socket) {
-	socket.emit('news', {hello: 'world'});
-
-	socket.on('other event', function (data) {
-		console.log(data);
-	});
-});
-
 app.get('/', function (req, res) {
 	res.render('index', {
 		title: 'hello'
 	});
+});
+
+app.get('/new', function (req, res) {
+	var fileName = utils.getRandomString(5, 7);
+
+	res.redirect('/' + fileName);
 });
 
 app.get('/:fileName', function (req, res) {
@@ -43,6 +42,8 @@ app.get('/:fileName', function (req, res) {
 		fileName: fileName
 	});
 });
+
+require('./io')(io);
 
 server.listen(3000, function (err) {
 	console.log("Business server listening on port %d in %s mode", 3000, app.settings.env);

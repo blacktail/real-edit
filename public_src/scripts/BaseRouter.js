@@ -6,8 +6,6 @@ define([
 ], function (_, Backbone, utils, app) {
 	return Backbone.Router.extend({
 		switchTopView: function (switchToPath, routeName, routeArguments) {
-			console.log('switchTopView:', switchToPath);
-
 			routeArguments = [].slice.apply(routeArguments || []);
 
 			// free app views

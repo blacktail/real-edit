@@ -9,7 +9,6 @@ define([
 		},
 
 		edit: function () {
-			console.log('edit');
 			this.switchTopView('edit', 'edit', arguments);
 		}
 	});

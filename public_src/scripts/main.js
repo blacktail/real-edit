@@ -22,6 +22,4 @@ define([
 		pushState: true,
 		hashChange: false
 	});
-
-	console.log('Backbone.history.start!');
 });
