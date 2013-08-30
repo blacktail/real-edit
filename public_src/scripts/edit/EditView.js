@@ -4,8 +4,9 @@ define([
 	'edit/templates',
 	'jquery',
 	'common/utils',
-	'common/PromptView'
-], function(_, Backbone, templates, $, utils, PromptView) {
+	'common/PromptView',
+	'dmp'
+], function(_, Backbone, templates, $, utils, PromptView, Dmp) {
 	var EditView = Backbone.View.extend({
 		tagName: 'div',
 		id: 'editPage',
@@ -33,6 +34,13 @@ define([
 			this.socket.on('connect', _.bind(this.onSocketConnect, this));
 			this.socket.on('user:changed', _.bind(this.onUserChange, this));
 			this.socket.on('message:new', _.bind(this.onNewMessage, this));
+
+			this.opMap = {
+				'insertText': 'i',
+				'insertLines': 'i',
+				'removeText': 'd',
+				'removeLines': 'd'
+			};
 		},
 
 		render: function(model) {
@@ -75,6 +83,10 @@ define([
 			});
 			utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/keybinding-vim.js', function() {
 			});
+
+			this.editor.on('change', _.bind(this.onEditorChange, this));
+
+			this.doc = this.editor.getSession().doc;
 		},
 
 		updateEditorStatus: function () {
@@ -162,7 +174,23 @@ define([
 
 			$('.user-list .always-into-view')[0].scrollIntoView();
 			$('#userNum').html(data.length);
-		}
+		},
+
+		onEditorChange: function (event) {
+			var data = event.data;
+
+			var op = this.opMap[data.action],
+				start = data.range.start,
+				end = data.range.end;
+
+			start = this.doc.positionToIndex(start);
+			end = this.doc.positionToIndex(end);
+
+			var changeData = [op, start, end, data.text];
+
+			console.log(changeData);
+		},
+
 	});
 
 	return EditView;
