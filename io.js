@@ -3,7 +3,6 @@ var _ = require('lodash'),
 
 function init(io) {
 	io.sockets.on('connection', function (socket) {
-		console.log('>>>>>>', socket.id);
 
 		var chanel, user;
 		socket.on('begin', function (data) {
@@ -62,7 +61,7 @@ function getChanelUsers(chanel) {
 	_.each(cSockets, function (data) {
 		currentUsers.push({
 			user: data.user,
-			address: data.address
+			address: data.socket.handshake.address
 		});
 	});
 
