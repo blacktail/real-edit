@@ -1,3 +1,3 @@
 {{#each users}}
-	<li>{{this}}<li>
+	<li>{{user}} <span>{{address/address}}</span><li>
 {{/each}}

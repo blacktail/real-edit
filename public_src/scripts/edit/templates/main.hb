@@ -42,11 +42,13 @@
 		<div class="sidebar col-xs-3">
 			<div class="user-list panel panel-default">
 				<div class="panel-heading">
-					Users
+					Users <span class="badge" id="userNum">42</span>
 				</div>
 				<div class="panel-body">
 					<ul id="usersList">
 					</ul>
+
+					<div class="always-into-view"></div>
 				</div>
 			</div>
 
@@ -57,6 +59,8 @@
 				<div class="panel-body">
 					<ul id="msgList">
 					</ul>
+					
+					<div class="always-into-view"></div>
 				</div>
 			</div>
 

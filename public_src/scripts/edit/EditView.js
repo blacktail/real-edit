@@ -31,8 +31,8 @@ define([
 
 			this.socket = io.connect('/');
 			this.socket.on('connect', _.bind(this.onSocketConnect, this));
-			this.socket.on('user:change', _.bind(this.onUserChange, this));
-			this.socket.on('newmsg', _.bind(this.onNewMessage, this));
+			this.socket.on('user:changed', _.bind(this.onUserChange, this));
+			this.socket.on('message:new', _.bind(this.onNewMessage, this));
 		},
 
 		render: function(model) {
@@ -88,7 +88,11 @@ define([
 		},
 
 		updateUserInfo: function () {
-			this.$('#userName').html(this.model.get('user') || 'unknown');
+			var userName = this.model.get('user') || 'unknown';
+			this.$('#userName').html(userName);
+			this.socket.emit('username:change', {
+				user: userName
+			});
 		},
 
 		changeUserName: function () {
@@ -146,12 +150,18 @@ define([
 
 		onNewMessage: function (data) {
 			this.$('#msgList').append(templates['edit/message'](data));
+
+			$('.messages .always-into-view')[0].scrollIntoView();
 		},
 
 		onUserChange: function (data) {
+			console.log('onUserChange: ', data);
 			this.$('#usersList').html(templates['edit/users']({
 				users: data
 			}));
+
+			$('.user-list .always-into-view')[0].scrollIntoView();
+			$('#userNum').html(data.length);
 		}
 	});
 
