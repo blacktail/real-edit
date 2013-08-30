@@ -189,7 +189,7 @@ define([
 			var changeData = [op, start, end, data.text];
 
 			console.log(changeData);
-		},
+		}
 
 	});
 
