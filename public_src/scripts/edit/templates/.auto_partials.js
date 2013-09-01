@@ -1,3 +1,0 @@
-define(["handlebars"], function (Handlebars) {
-
-});

@@ -63,7 +63,7 @@ define([
 			var that = this;
 			// init ace editor
 			if (typeof ace == 'undefined') {
-				utils.loadScript('/ace-builds-1.1.01/src-noconflict/ace.js', function() {
+				utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/ace.js', function() {
 					that.initEditor();
 				});
 				
