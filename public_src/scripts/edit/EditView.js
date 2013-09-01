@@ -273,8 +273,10 @@ define([
 
 				if (patches)  {
 					newText = this.dmp.patch_apply(patches, text)[0];
+					this.curRevText = this.dmp.patch_apply(patches, this.curRevText)[0];
 				} else {
 					newText = utils.merge(text, changes);
+					this.curRevText = utils.merge(this.curRevText, changes);
 				}
 
 				this.doc.setValue(newText); //todo, need optimization
@@ -297,28 +299,35 @@ define([
 			console.log('doc sync: ', data);
 			var revs = data.rs,
 				baseText = this.curRevText,
-				baseRevId = this.curRevision;
-
-			if (baseRevId != data.or) {
-			//	return;
-			}
+				baseRevId = parseInt(this.curRevision, 10);
 
 			this.dontChange = true;
+			var canUpdate = false;
 
 			_.each(revs, function (rev) {
 				console.log('rev: ', rev);
-				if (rev.r > baseRevId) {
+
+				if (parseInt(rev.r, 10) == baseRevId + 1) {
+					canUpdate = true;
+				}
+
+				if (canUpdate && rev.r > baseRevId) {
 					if (rev.p) {
 						baseText = this.dmp.patch_apply(rev.g, baseText)[0];
 					} else {
 						baseText = utils.merge(baseText, rev.g);
 					}
+
+					this.curRevision = rev.r;
+					this.curRevText = baseText;
 				}
 			}, this);
 
 			console.log('newText: ', baseText);
+			var curValue = this.doc.getValue();
+			var patches = this.dmp.patch_make(baseText, curValue);
 
-			this.doc.setValue(baseText);
+			this.doc.setValue(this.dmp.patch_apply(patches, baseText));
 
 			this.dontChange = false;
 		},

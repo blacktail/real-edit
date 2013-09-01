@@ -42,7 +42,7 @@
 		<div class="sidebar col-xs-3">
 			<div class="user-list panel panel-default">
 				<div class="panel-heading">
-					Users <span class="badge" id="userNum">42</span>
+					Users <span class="badge" id="userNum">0</span>
 				</div>
 				<div class="panel-body">
 					<ul id="usersList">

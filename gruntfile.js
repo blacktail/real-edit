@@ -118,10 +118,11 @@ module.exports = function (grunt) {
 
 		jshint: {
 			options: {
-				force: true
+				force: true,
+				'-W030': true
 			},
 			all: getSrcFiles(['scripts/**/*.js', '!scripts/**/.*_compiled.js',
-				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*', '!scripts/common/socket.io.js'])
+				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*', '!scripts/common/socket.io.js', '!scripts/common/diff_match_patch.js'])
 		},
 
 		clean: {
@@ -297,7 +298,7 @@ function getWatchConfig() {
 				nospawn: true
 			},
 			files: getSrcFiles(['scripts/**/*.js', '!scripts/**/.*_compiled.js', '!scripts/startup.js',
-				'!scripts/**/.auto_*.js', '!scripts/config.js', '!scripts/common/socket.io.js']),
+				'!scripts/**/.auto_*.js', '!scripts/config.js', '!scripts/common/socket.io.js', '!scripts/common/diff_match_patch.js']),
 			tasks: ['jshint']
 		},
 		less: {

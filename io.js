@@ -77,12 +77,10 @@ function init(io) {
 			} else {
 				console.log('can not be merged directly.');
 				var baseRev = findRev(chanel, targetRevId);
-				console.log('baseRev', baseRev);
 
 				var baseRevText = baseRev.c,
 					newText = merge(baseRev.c, changes);
 
-				console.log('make patches: ', baseRevText, newText);
 				var patches = dmp.patch_make(baseRevText, newText);
 
 				var nRevId = commit(chanel, patches, user, true);
