@@ -193,8 +193,6 @@ define([
 				return;
 			}
 
-			console.log('editor change', event.data);
-
 			var data = event.data;
 
 			var op = this.opMap[data.action],
@@ -206,20 +204,20 @@ define([
 			this.changeArr.push(changeData);
 
 			this.sendChange();
-
-			this.changeArr = [];
 		},
 
 		sendChange: function () {
-			console.log('sendChange: ', this.changeArr);
+			if (this.pending) {
+				console.log('pending now, please wait...');
+				return;
+			}
+
 			this.socket.emit('doc:change', {
 				cr: this.curRevision,
 				cg: this.changeArr
 			});
-		},
 
-		getNewRevId: function () {
-			return _.uniqueId(this.socket.id + '_');
+			this.pending = true;
 		},
 
 		onDocInit: function (rev) {
@@ -246,12 +244,16 @@ define([
 				this.curRevision = data.nr;
 				this.curRevText = utils.merge(this.curRevText, data.cg);
 			}
+
+			this.pending = false;
+
+			if (this.changeArr.length > 0) {
+				this.sendChange();
+			}
 		},
 
 		onDocRemoteChanged: function (data) {
-			console.log('source:', data.fr, 'me: ', this.socket.id);
 			if (data.fr == this.socket.id) {
-				console.log('ignore self changed.');
 				return;
 			}
 
@@ -297,8 +299,6 @@ define([
 				baseText = this.curRevText,
 				baseRevId = this.curRevision;
 
-			console.log(revs, this.curRevision, data.or);
-			console.log('docsync: should be true => ', baseRevId == data.or);
 			if (baseRevId != data.or) {
 			//	return;
 			}
@@ -308,7 +308,6 @@ define([
 			_.each(revs, function (rev) {
 				console.log('rev: ', rev);
 				if (rev.r > baseRevId) {
-					console.log('process rev: ', rev.r);
 					if (rev.p) {
 						baseText = this.dmp.patch_apply(rev.g, baseText)[0];
 					} else {

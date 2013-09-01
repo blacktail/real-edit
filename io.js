@@ -235,6 +235,7 @@ function commit(chanel, changes, commitor, isPatch) {
 		p: isPatch
 	});
 
+	console.log('commited: ', changes, ' in revision ', newRevId);
 	console.log(txt);
 
 	return newRevId;
