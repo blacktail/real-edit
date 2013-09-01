@@ -38,7 +38,9 @@ define([
 			this.socket.on('doc:init', _.bind(this.onDocInit, this));
 			this.socket.on('doc:ack', _.bind(this.onDocAck, this));
 			this.socket.on('doc:changed', _.bind(this.onDocRemoteChanged, this));
-			this.socket.on('doc:sync', _.bind(this.onDocSync, this))
+			this.socket.on('doc:sync', _.bind(this.onDocSync, this));
+
+			this.dmp = new Dmp();
 
 			this.opMap = {
 				'insertText': 1,
@@ -61,7 +63,7 @@ define([
 			var that = this;
 			// init ace editor
 			if (typeof ace == 'undefined') {
-				utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/ace.js', function() {
+				utils.loadScript('/ace-builds-1.1.01/src-noconflict/ace.js', function() {
 					that.initEditor();
 				});
 				
@@ -191,6 +193,8 @@ define([
 				return;
 			}
 
+			console.log('editor change', event.data);
+
 			var data = event.data;
 
 			var op = this.opMap[data.action],
@@ -202,14 +206,17 @@ define([
 			this.changeArr.push(changeData);
 
 			this.sendChange();
+
+			this.changeArr = [];
 		},
 
-		sendChange: _.debounce(function () {
+		sendChange: function () {
+			console.log('sendChange: ', this.changeArr);
 			this.socket.emit('doc:change', {
 				cr: this.curRevision,
 				cg: this.changeArr
 			});
-		}, 100, false),
+		},
 
 		getNewRevId: function () {
 			return _.uniqueId(this.socket.id + '_');
@@ -217,39 +224,63 @@ define([
 
 		onDocInit: function (rev) {
 			this.curRevision = rev.r;
+			this.curRevText = rev.c;
 			this.dontChange = true;
 			this.doc.setValue(rev.c);
 			this.dontChange = false;
 		},
 
 		onDocAck: function (data) {
-			this.curRevision = data.r;
+			var canUpdateRevision = this.curRevision < data.nr && this.curRevision == data.or &&
+				!data.ph;
 
-			var changed = data.cg,
+			var changedIds = data.id,
 				changeArr = this.changeArr;
 
 			this.changeArr = _.filter(changeArr, function (change) {
-				return changed.indexOf(change[0]) == -1;
+				return changedIds.indexOf(change[0]) == -1;
 			});
+
+			if (canUpdateRevision) {
+				console.log('update to revision: ', data.nr);
+				this.curRevision = data.nr;
+				this.curRevText = utils.merge(this.curRevText, data.cg);
+			}
 		},
 
 		onDocRemoteChanged: function (data) {
+			console.log('source:', data.fr, 'me: ', this.socket.id);
+			if (data.fr == this.socket.id) {
+				console.log('ignore self changed.');
+				return;
+			}
+
 			var newRevision = data.nr,
 				baseRevision = data.or,
 				changes = data.cg,
+				patches = data.ph,
 				curRevision = this.curRevision;
 
 			if (curRevision == newRevision) {
 				console.log('already newest');
 			} else if (curRevision < newRevision && curRevision == baseRevision) {
 				console.log('can merge');
-				var text = this.doc.getValue();
+				var text = this.doc.getValue(),
+					newText = text;
 				this.dontChange = true;
-				this.doc.setValue(utils.merge(text, changes)); //todo, need optimization
+
+				if (patches)  {
+					newText = this.dmp.patch_apply(patches, text)[0];
+				} else {
+					newText = utils.merge(text, changes);
+				}
+
+				this.doc.setValue(newText); //todo, need optimization
 				this.dontChange = false;
 				this.curRevision = newRevision;
 			} else if (curRevision > newRevision) {
-				throw new Error('unexcepted error occurs');
+				// throw new Error('unexcepted error occurs');
+				console.log('old revision arrived, ignore that');
 			} else { // current revision is behind of baseRevision many revsions, should sync latest Revision
 				this.syncLatestRevision();
 				console.log('need sync');
@@ -258,12 +289,39 @@ define([
 
 		syncLatestRevision: function () {
 			this.socket.emit('doc:needSync', this.curRevision);
-
-
 		},
 
 		onDocSync: function (data) {
+			console.log('doc sync: ', data);
+			var revs = data.rs,
+				baseText = this.curRevText,
+				baseRevId = this.curRevision;
 
+			console.log(revs, this.curRevision, data.or);
+			console.log('docsync: should be true => ', baseRevId == data.or);
+			if (baseRevId != data.or) {
+			//	return;
+			}
+
+			this.dontChange = true;
+
+			_.each(revs, function (rev) {
+				console.log('rev: ', rev);
+				if (rev.r > baseRevId) {
+					console.log('process rev: ', rev.r);
+					if (rev.p) {
+						baseText = this.dmp.patch_apply(rev.g, baseText)[0];
+					} else {
+						baseText = utils.merge(baseText, rev.g);
+					}
+				}
+			}, this);
+
+			console.log('newText: ', baseText);
+
+			this.doc.setValue(baseText);
+
+			this.dontChange = false;
 		},
 
 		getModifyRange: function (change) {

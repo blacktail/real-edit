@@ -1,6 +1,8 @@
 var _ = require('lodash'),
 	sockets = {},
-	docRevs = {};
+	docRevs = {},
+	DMP = require('./diff_match_patch'),
+	dmp = new DMP();
 
 function init(io) {
 	io.sockets.on('connection', function (socket) {
@@ -52,25 +54,96 @@ function init(io) {
 
 		socket.on('doc:change', function (data) {
 			var currentRev = getCurrentRev(chanel),
-				targetRev = data.cr,
+				targetRevId = parseInt(data.cr),
 				changes = data.cg;
 
-			if (targetRev == currentRev.r) {
+			if (targetRevId == currentRev.r) {
 				console.log('can be merged directly.');
-				var nRevId = mergeAndCommit(chanel, changes);
+				var nRevId = commit(chanel, changes, user, false);
+
 				socket.emit('doc:ack', {
-					r: nRevId,
-					cg: _.pluck(changes, 0)
+					nr: nRevId,
+					or: targetRevId,
+					id: _.pluck(changes, 0),
+					cg: changes
 				});
 
 				broadcast('doc:changed', chanel, {
+					fr: socket.id,
 					cg: changes,
-					or: targetRev, // old revision
+					or: targetRevId, // old revision
 					nr: nRevId     // new revision
 				});
 			} else {
 				console.log('can not be merged directly.');
+				var baseRev = findRev(chanel, targetRevId);
+				console.log('baseRev', baseRev);
+
+				var baseRevText = baseRev.c,
+					newText = merge(baseRev.c, changes);
+
+				console.log('make patches: ', baseRevText, newText);
+				var patches = dmp.patch_make(baseRevText, newText);
+
+				var nRevId = commit(chanel, patches, user, true);
+
+				socket.emit('doc:ack', {
+					nr: nRevId,
+					or: targetRevId,
+					id: _.pluck(changes, 0),
+					ph: patches
+				});
+
+				// get a series changes from base Rev to cur Rev and patches for the new revision
+				var rangeRevs = getRangeRevs(chanel, baseRev.r + 1, currentRev.r);
+				var changes = _.map(rangeRevs, function (rev) {
+					return {
+						p: rev.p,
+						g: rev.g,
+						r: rev.r
+					};
+				});
+
+				changes.push({
+					p: true,
+					g: patches,
+					r: nRevId
+				});
+
+				socket.emit('doc:sync', {
+					or: targetRevId,
+					nr: nRevId,
+					rs: changes
+				});
+
+				broadcast('doc:changed', chanel, {
+					fr: socket.id,
+					cg: [],
+					or: currentRev.r, // old revision
+					nr: nRevId,     // new revision
+					ph: patches
+				});
 			}
+		});
+
+		socket.on('doc:needSync', function (baseRevId) {
+			var currentRev = getCurrentRev(chanel);
+
+			var revs = getRangeRevs(baseRevId + 1, currentRev);
+
+			revs = _.map(revs, function (rev) {
+					return {
+						p: rev.p,
+						g: rev.g,
+						r: rev.r
+					};
+				});
+
+			socket.emit('doc:sync', {
+				or: baseRevId,
+				nr: currentRev.r,
+				rs: revs 
+			});
 		});
 	});
 }
@@ -97,14 +170,24 @@ function getChanelUsers(chanel) {
 	return currentUsers;
 }
 
-function applyChange(rev) {
-
-}
-
 function getCurrentRev(chanel) {
 	var drs = docRevs[chanel];
 
 	return drs[drs.length - 1];
+}
+
+function findRev(chanel, revId) {
+	var drs = docRevs[chanel];
+
+	return _.where(drs, {
+		r: revId
+	})[0];
+}
+
+function getRangeRevs(chanel, startRevId, endRevId) {
+	var drs = docRevs[chanel];
+
+	return drs.slice(parseInt(startRevId), parseInt(endRevId) + 1);
 }
 
 function initDocRevs(chanel) {
@@ -114,7 +197,10 @@ function initDocRevs(chanel) {
 		docRevs[chanel] = [
 			{
 				r: 0,
-				c: initContent
+				c: initContent,
+				u: 'system',
+				g: [],
+				p: false
 			}
 		];
 	}
@@ -132,22 +218,24 @@ function hash(text, algo) {
 	return crypto.createHash(algo).update(text).digest('hex');
 }
 
-function mergeAndCommit(chanel, changes) {
+function commit(chanel, changes, commitor, isPatch) {
 	var curRev = getCurrentRev(chanel),
-		text = curRev.c,
-		r = curRev.r;
+		r = curRev.r,
+		c = curRev.c,
+		newRevId = ++r,
+		txt;
 
-	text = merge(text, changes);
+	txt = isPatch ? dmp.patch_apply(changes, c)[0] : merge(c, changes);
 
-	var newRevId = ++r;
-
-	// commit for the result
 	docRevs[chanel].push({
 		r: newRevId,
-		c: text
+		c: txt,
+		u: commitor || '',
+		g: changes,
+		p: isPatch
 	});
 
-	console.log(text);
+	console.log(txt);
 
 	return newRevId;
 }
