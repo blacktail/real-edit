@@ -32,15 +32,22 @@ define([
 
 			this.socket = io.connect('/');
 			this.socket.on('connect', _.bind(this.onSocketConnect, this));
+			this.socket.on('socket:new', _.bind(this.onSocketNew, this));
 			this.socket.on('user:changed', _.bind(this.onUserChange, this));
 			this.socket.on('message:new', _.bind(this.onNewMessage, this));
+			this.socket.on('doc:init', _.bind(this.onDocInit, this));
+			this.socket.on('doc:ack', _.bind(this.onDocAck, this));
+			this.socket.on('doc:changed', _.bind(this.onDocRemoteChanged, this));
+			this.socket.on('doc:sync', _.bind(this.onDocSync, this))
 
 			this.opMap = {
-				'insertText': 'i',
-				'insertLines': 'i',
-				'removeText': 'd',
-				'removeLines': 'd'
+				'insertText': 1,
+				'insertLines': 1,
+				'removeText': -1,
+				'removeLines': -1
 			};
+
+			this.changeArr = [];
 		},
 
 		render: function(model) {
@@ -160,6 +167,10 @@ define([
 			});
 		},
 
+		onSocketNew: function (data) {
+			this.socket.id = data;
+		},
+
 		onNewMessage: function (data) {
 			this.$('#msgList').append(templates['edit/message'](data));
 
@@ -167,7 +178,6 @@ define([
 		},
 
 		onUserChange: function (data) {
-			console.log('onUserChange: ', data);
 			this.$('#usersList').html(templates['edit/users']({
 				users: data
 			}));
@@ -177,20 +187,112 @@ define([
 		},
 
 		onEditorChange: function (event) {
+			if (this.dontChange) {
+				return;
+			}
+
 			var data = event.data;
 
 			var op = this.opMap[data.action],
-				start = data.range.start,
-				end = data.range.end;
+				mRange = this.getModifyRange(data);
 
-			start = this.doc.positionToIndex(start);
-			end = this.doc.positionToIndex(end);
 
-			var changeData = [op, start, end, data.text];
+			var changeData = [_.uniqueId('c'), op, mRange.start, mRange.end, mRange.text];
 
-			console.log(changeData);
+			this.changeArr.push(changeData);
+
+			this.sendChange();
+		},
+
+		sendChange: _.debounce(function () {
+			this.socket.emit('doc:change', {
+				cr: this.curRevision,
+				cg: this.changeArr
+			});
+		}, 100, false),
+
+		getNewRevId: function () {
+			return _.uniqueId(this.socket.id + '_');
+		},
+
+		onDocInit: function (rev) {
+			this.curRevision = rev.r;
+			this.dontChange = true;
+			this.doc.setValue(rev.c);
+			this.dontChange = false;
+		},
+
+		onDocAck: function (data) {
+			this.curRevision = data.r;
+
+			var changed = data.cg,
+				changeArr = this.changeArr;
+
+			this.changeArr = _.filter(changeArr, function (change) {
+				return changed.indexOf(change[0]) == -1;
+			});
+		},
+
+		onDocRemoteChanged: function (data) {
+			var newRevision = data.nr,
+				baseRevision = data.or,
+				changes = data.cg,
+				curRevision = this.curRevision;
+
+			if (curRevision == newRevision) {
+				console.log('already newest');
+			} else if (curRevision < newRevision && curRevision == baseRevision) {
+				console.log('can merge');
+				var text = this.doc.getValue();
+				this.dontChange = true;
+				this.doc.setValue(utils.merge(text, changes)); //todo, need optimization
+				this.dontChange = false;
+				this.curRevision = newRevision;
+			} else if (curRevision > newRevision) {
+				throw new Error('unexcepted error occurs');
+			} else { // current revision is behind of baseRevision many revsions, should sync latest Revision
+				this.syncLatestRevision();
+				console.log('need sync');
+			}
+		},
+
+		syncLatestRevision: function () {
+			this.socket.emit('doc:needSync', this.curRevision);
+
+
+		},
+
+		onDocSync: function (data) {
+
+		},
+
+		getModifyRange: function (change) {
+			var start = this.doc.positionToIndex(change.range.start),
+				end = start,
+				text = '',
+				nl = this.doc.getNewLineCharacter();
+
+			if (change.action == 'removeLines' || change.action == 'insertLines') {
+				var nlNums = change.lines.length * nl.length,
+					textNums = 0;
+					_.each(change.lines, function (line) {
+						textNums += line.length;
+						text += line + nl;
+					});
+
+
+				end = start + textNums + nlNums;
+			} else {
+				end = start + change.text.length;
+				text = change.text;
+			}
+
+			return {
+				start: start,
+				end: end,
+				text: text
+			};
 		}
-
 	});
 
 	return EditView;
