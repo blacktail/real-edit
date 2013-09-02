@@ -8,8 +8,9 @@ define([], function () {
 
 			script.onload = cb || function() {};
 		},
-		merge: function (text, changes) {
+		merge: function (text, changes, cursorPos) {
 			text = text || '';
+			var destPos = cursorPos;
 
 			_.each(changes, function (cg) {
 				if (_.isArray(cg)) {
@@ -21,14 +22,28 @@ define([], function () {
 					if (op == -1) {
 						text = text.substring(0, start) +
 							text.substring(end);
+
+						var dist = Math.max(Math.min(cursorPos, end) - start, 0);
+						destPos -= dist;
 					} else {
 						text = text.substring(0, start) + t +
 							text.substring(start);
+
+						if (start <= cursorPos) {
+							destPos += t.length;
+						}
 					}
 				}
 			});
 
-			return text;
+			if (typeof cursorPos == 'undefined') {
+				return text;
+			} else {
+				return {
+					text: text,
+					cursorPos: destPos
+				};
+			}
 		}
 	};
 });

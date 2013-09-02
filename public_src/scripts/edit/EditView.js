@@ -268,18 +268,26 @@ define([
 			} else if (curRevision < newRevision && curRevision == baseRevision) {
 				console.log('can merge');
 				var text = this.doc.getValue(),
-					newText = text;
+					cursorPos = this.doc.positionToIndex(this.editor.getCursorPosition()),
+					newText = text,
+					mergeResult = null;
 				this.dontChange = true;
 
 				if (patches)  {
 					newText = this.dmp.patch_apply(patches, text)[0];
 					this.curRevText = this.dmp.patch_apply(patches, this.curRevText)[0];
 				} else {
-					newText = utils.merge(text, changes);
+					mergeResult = utils.merge(text, changes, cursorPos);
+					newText = mergeResult.text;
+					cursorPos = mergeResult.cursorPos;
 					this.curRevText = utils.merge(this.curRevText, changes);
 				}
 
+
 				this.doc.setValue(newText); //todo, need optimization
+				this.editor.moveCursorToPosition(this.doc.indexToPosition(cursorPos));
+				this.editor.clearSelection();
+
 				this.dontChange = false;
 				this.curRevision = newRevision;
 			} else if (curRevision > newRevision) {
@@ -327,7 +335,10 @@ define([
 			var curValue = this.doc.getValue();
 			var patches = this.dmp.patch_make(baseText, curValue);
 
+			var cursorPosition = this.editor.getCursorPosition();
 			this.doc.setValue(this.dmp.patch_apply(patches, baseText));
+			this.editor.moveCursorToPosition(cursorPosition);
+			this.editor.clearSelection();
 
 			this.dontChange = false;
 		},
