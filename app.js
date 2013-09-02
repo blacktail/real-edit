@@ -43,7 +43,7 @@ app.get('/:fileName', function (req, res) {
 	});
 });
 
-require('./io')(io);
+require('./lib/io')(io);
 
 server.listen(3000, function (err) {
 	console.log("Business server listening on port %d in %s mode", 3000, app.settings.env);
