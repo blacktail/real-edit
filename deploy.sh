@@ -1,21 +1,33 @@
 #! /bin/bash
 
 desc=`file /bin/cat`
-echo $desc
 i=`expr match "$desc" ".*64-bit.*"`
-echo $i
+
 
 if [ $i -lt 1 ]; then
-	PATH=$PATH:`pwd`/deploy/node-32/bin/	
+	PATH=`pwd`/deploy/node-32/bin/:$PATH
 else
-	PATH=$PATH:`pwd`/deploy/node-64/bin/
+	PATH=`pwd`/deploy/node-64/bin/:$PATH
 fi
 
-npm install forever
-npm install
+echo 'npm version: '`npm --version`
+echo 'node version: '`node --version`
+
+echo 'installing dependencies'
+
+npm install --production
 
 if [ ! -d "./logs" ]; then
+	echo 'create logs directory'
 	mkdir logs
 fi
 
-./startup_production.sh
+export NODE_ENV=production
+
+./node_modules/forever/bin/forever stop app.js
+./node_modules/forever/bin/forever start -e ./logs/error.log -o ./logs/out.log app.js 
+
+ip=`LC_ALL=C ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' |
+cut -d: -f2 | awk '{ print $1}'`
+
+echo 'server started, please visit: http://'$ip':3000 '
