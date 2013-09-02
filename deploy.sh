@@ -24,7 +24,7 @@ fi
 
 export NODE_ENV=production
 
-./node_modules/forever/bin/forever stop app.js
+./node_modules/forever/bin/forever stop app.js 2>/dev/null
 ./node_modules/forever/bin/forever start -e ./logs/error.log -o ./logs/out.log app.js 
 
 ip=`LC_ALL=C ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' |
