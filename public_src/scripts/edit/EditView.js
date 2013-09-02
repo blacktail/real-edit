@@ -18,7 +18,8 @@ define([
 			'change #keyBinding': 'changeKeyBinding',
 			'change #progLang': 'changeProgrammingLanguage',
 			'change #editorTheme': 'changeEditorTheme',
-			'keydown #message': 'chat'
+			'keydown #message': 'chat',
+			'click #new': 'createNewFile'
 		},
 
 		initialize: function(options) {
@@ -369,6 +370,10 @@ define([
 				end: end,
 				text: text
 			};
+		},
+
+		createNewFile: function () {
+			location.href = '/new';
 		}
 	});
 

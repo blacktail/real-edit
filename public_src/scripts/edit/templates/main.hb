@@ -4,9 +4,9 @@
 			<a class="navbar-brand" href="#">RealEdit</a>
 		</div>
 		<div class="collapse navbar-collapse navbar-ex2-collapse">
-			<button type="button" class="btn btn-default navbar-btn btn-xs">New</button>
-			<button type="button" class="btn btn-default btn-xs">History</button>
-			<button type="button" class="btn btn-default btn-xs">Download</button>
+			<button id="new" type="button" class="btn btn-default navbar-btn btn-xs">New</button>
+			<button id="history" type="button" class="btn btn-default btn-xs">History</button>
+			<button id="download" type="button" class="btn btn-default btn-xs">Download</button>
 			<div class="user-info pull-right">
 				<a href="#" id="userName">{{user}}</a>
 			</div>
