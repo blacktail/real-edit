@@ -3,7 +3,8 @@ var express = require('express'),
 	server = require('http').createServer(app),
 	io = require('socket.io').listen(server),
 	cons = require('consolidate'),
-	utils = require('./lib/utils');
+	utils = require('./lib/utils'),
+	iolib = require('./lib/io');
 
 app.engine('html', cons.handlebars);
 
@@ -43,7 +44,45 @@ app.get('/:fileName', function (req, res) {
 	});
 });
 
-require('./lib/io')(io);
+app.get('/download/:fileName/:revId?', function (req, res) {
+	var fileName = req.param('fileName'),
+		revId = req.param('revId');
+
+	if (!revId) {
+		iolib.getCurrentRev(fileName, function (err, rev) {
+			if (err) {
+				res.send(err);
+			} else {
+				res.setHeader('Content-disposition', 'attachment; filename=' + fileName + '_' + rev.r);
+				res.setHeader('Content-type', 'application/octet-stream');
+				res.end(rev.c || '');
+			}
+		});
+	} else {
+		iolib.getRevById(fileName, revId, function (err, rev) {
+			if (err) {
+				res.send(err);
+			} else {
+				res.setHeader('Content-disposition', 'attachment; filename=' + fileName + '_' + rev.r);
+				res.setHeader('Content-type', 'application/octet-stream');
+				res.end(rev.c || '');
+			}
+		});
+	}
+});
+
+app.get('/history/:fileName', function (req, res) {
+	var fileName = req.param('fileName');
+
+	iolib.getFileRevs(fileName, function (err, revs) {
+		res.render('history', {
+			fileName: fileName,
+			revs: revs
+		});
+	});
+});
+
+iolib.init(io);
 
 server.listen(3000, function (err) {
 	console.log("Business server listening on port %d in %s mode", 3000, app.settings.env);

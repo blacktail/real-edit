@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Revision history of {{fileName}}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="/css/startup.css?v=20130903231438%2B0800">
+	</head>
+	<body>
+		<div id="main">
+			<table class="table">
+				<thead>
+					<tr>
+						<td>id</td><td>commitor</td><td>changes</td><td>time</td><td>file</td>
+					</tr>
+				</thead>
+				<tbody>
+					{{#each revs}}
+						<tr>
+						<td>{{r}}</td><td>{{u}}</td><td>{{g}}</td><td>{{t}}</td><td><a href="/download/{{../fileName}}/{{r}}" target="_blank">download</a></td>
+						</tr>
+					{{/each}}
+				</tbody>
+				<tfoot>
+
+				</tfoot>
+			</table>
+		</div>
+	</body>
+</html>

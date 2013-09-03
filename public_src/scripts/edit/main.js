@@ -22,7 +22,8 @@ define([
 			user: localStorage.realEditUser || '',
 			language: localStorage.realEditProgLang || 'javascript',
 			keybindi: localStorage.realEditKeyBindi || '',
-			theme: localStorage.realEditTheme || 'ace/theme/textmate'
+			theme: localStorage.realEditTheme || 'ace/theme/textmate',
+			fileName: fileName
 		});
 	};
 });
