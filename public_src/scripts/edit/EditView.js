@@ -213,6 +213,11 @@ define([
 				return;
 			}
 
+			if (this.syncing) {
+				console.log('the doc is syncing, please wait...');
+				return;
+			}
+
 			this.socket.emit('doc:change', {
 				cr: this.curRevision,
 				cg: this.changeArr
@@ -230,10 +235,9 @@ define([
 		},
 
 		onDocAck: function (data) {
-			var canUpdateRevision = this.curRevision < data.nr && this.curRevision == data.or &&
-				!data.ph;
+			var canUpdateRevision = this.curRevision < data.nr && this.curRevision == data.or;
 
-			var changedIds = data.id,
+			var changedIds = data.cgid,
 				changeArr = this.changeArr;
 
 			this.changeArr = _.filter(changeArr, function (change) {
@@ -261,7 +265,6 @@ define([
 			var newRevision = data.nr,
 				baseRevision = data.or,
 				changes = data.cg,
-				patches = data.ph,
 				curRevision = this.curRevision;
 
 			if (curRevision == newRevision) {
@@ -272,25 +275,21 @@ define([
 					cursorPos = this.doc.positionToIndex(this.editor.getCursorPosition()),
 					newText = text,
 					mergeResult = null;
+
 				this.dontChange = true;
 
-				if (patches)  {
-					newText = this.dmp.patch_apply(patches, text)[0];
-					this.curRevText = this.dmp.patch_apply(patches, this.curRevText)[0];
-				} else {
-					mergeResult = utils.merge(text, changes, cursorPos);
-					newText = mergeResult.text;
-					cursorPos = mergeResult.cursorPos;
-					this.curRevText = utils.merge(this.curRevText, changes);
-				}
+				mergeResult = utils.merge(text, changes, cursorPos);
+				newText = mergeResult.text;
+				cursorPos = mergeResult.cursorPos;
 
+				this.curRevText = utils.merge(this.curRevText, changes);
+				this.curRevision = newRevision;
 
 				this.doc.setValue(newText); //todo, need optimization
 				this.editor.moveCursorToPosition(this.doc.indexToPosition(cursorPos));
 				this.editor.clearSelection();
 
 				this.dontChange = false;
-				this.curRevision = newRevision;
 			} else if (curRevision > newRevision) {
 				// throw new Error('unexcepted error occurs');
 				console.log('old revision arrived, ignore that');
@@ -301,47 +300,46 @@ define([
 		},
 
 		syncLatestRevision: function () {
+			if (this.syncing) {
+				console.log('is syncing, please no repeat...');
+				return;
+			}
+
+			console.log('cur revision: ', this.curRevision);
 			this.socket.emit('doc:needSync', this.curRevision);
+
+			this.syncing = true;
 		},
 
 		onDocSync: function (data) {
-			console.log('doc sync: ', data);
+			console.log('got syncing revs: ', data);
+
 			var revs = data.rs,
-				baseText = this.curRevText,
-				baseRevId = parseInt(this.curRevision, 10);
+				revChanges = _.pluck(revs, 'g');
 
-			this.dontChange = true;
-			var canUpdate = false;
+			if (revChanges.length > 0) {
+				var	baseRevText = this.curRevText,
+				newChanges = utils.mergeChangesIntoRevChanges(this.changeArr, revChanges);
 
-			_.each(revs, function (rev) {
-				console.log('rev: ', rev);
+				console.log('newChanges:', newChanges);
 
-				if (parseInt(rev.r, 10) == baseRevId + 1) {
-					canUpdate = true;
-				}
+				console.log('curRevText', baseRevText, revChanges);
+				this.curRevText = utils.merge(baseRevText, revChanges);
+				console.log('after curRevText', this.curRevText);
+				this.curRevision = revs[revs.length - 1].r;
+				var editorText = utils.merge(this.curRevText, newChanges);
 
-				if (canUpdate && rev.r > baseRevId) {
-					if (rev.p) {
-						baseText = this.dmp.patch_apply(rev.g, baseText)[0];
-					} else {
-						baseText = utils.merge(baseText, rev.g);
-					}
+				this.dontChange = true;
+				this.doc.setValue(editorText);
+				this.dontChange = false;
+			}
+			
+			this.syncing = false;
+			this.pending = false;
 
-					this.curRevision = rev.r;
-					this.curRevText = baseText;
-				}
-			}, this);
-
-			console.log('newText: ', baseText);
-			var curValue = this.doc.getValue();
-			var patches = this.dmp.patch_make(baseText, curValue);
-
-			var cursorPosition = this.editor.getCursorPosition();
-			this.doc.setValue(this.dmp.patch_apply(patches, baseText));
-			this.editor.moveCursorToPosition(cursorPosition);
-			this.editor.clearSelection();
-
-			this.dontChange = false;
+			if (this.changeArr.length > 0) {
+				this.sendChange();
+			}
 		},
 
 		getModifyRange: function (change) {
