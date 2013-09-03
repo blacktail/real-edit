@@ -209,12 +209,14 @@ define([
 
 		sendChange: function () {
 			if (this.pending) {
-				console.log('pending now, please wait...');
 				return;
 			}
 
 			if (this.syncing) {
-				console.log('the doc is syncing, please wait...');
+				return;
+			}
+
+			if (this.changeArr.length <= 0) {
 				return;
 			}
 
@@ -245,7 +247,6 @@ define([
 			});
 
 			if (canUpdateRevision) {
-				console.log('update to revision: ', data.nr);
 				this.curRevision = data.nr;
 				this.curRevText = utils.merge(this.curRevText, data.cg);
 			}
@@ -268,9 +269,8 @@ define([
 				curRevision = this.curRevision;
 
 			if (curRevision == newRevision) {
-				console.log('already newest');
+				// console.log('already newest');
 			} else if (curRevision < newRevision && curRevision == baseRevision) {
-				console.log('can merge');
 				var text = this.doc.getValue(),
 					cursorPos = this.doc.positionToIndex(this.editor.getCursorPosition()),
 					newText = text,
@@ -290,42 +290,37 @@ define([
 				this.editor.clearSelection();
 
 				this.dontChange = false;
+
+				this.sendChange();
 			} else if (curRevision > newRevision) {
 				// throw new Error('unexcepted error occurs');
-				console.log('old revision arrived, ignore that');
 			} else { // current revision is behind of baseRevision many revsions, should sync latest Revision
 				this.syncLatestRevision();
-				console.log('need sync');
 			}
 		},
 
 		syncLatestRevision: function () {
 			if (this.syncing) {
-				console.log('is syncing, please no repeat...');
 				return;
 			}
 
-			console.log('cur revision: ', this.curRevision);
 			this.socket.emit('doc:needSync', this.curRevision);
 
 			this.syncing = true;
 		},
 
 		onDocSync: function (data) {
-			console.log('got syncing revs: ', data);
-
-			var revs = data.rs,
-				revChanges = _.pluck(revs, 'g');
+			var revs = data.rs;
+			var revChanges = [];
+			_.each(revs, function (rev) {
+				revChanges = revChanges.concat(rev.g);
+			});
 
 			if (revChanges.length > 0) {
 				var	baseRevText = this.curRevText,
 				newChanges = utils.mergeChangesIntoRevChanges(this.changeArr, revChanges);
 
-				console.log('newChanges:', newChanges);
-
-				console.log('curRevText', baseRevText, revChanges);
 				this.curRevText = utils.merge(baseRevText, revChanges);
-				console.log('after curRevText', this.curRevText);
 				this.curRevision = revs[revs.length - 1].r;
 				var editorText = utils.merge(this.curRevText, newChanges);
 

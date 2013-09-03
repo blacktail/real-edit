@@ -50,49 +50,40 @@ define([
 		},
 
 		mergeChangesIntoRevChanges: function (changes, revChanges) {
-			console.time('merging revs');
+			var start = new Date().getTime();
 
-			if (revChanges.length <= 0 || changes.length <= 0) {
+			if (changes.length <= 0) {
 				return [];
 			}
 
-			var firstChange = changes[0],
-				leftChanges = changes.slice(1),
-				newChanges = [];
+			if (revChanges.length <= 0) {
+				return changes;
+			}
 
+			var wantChanges = changes;
 			var baseChanges = revChanges;
+			var newChanges = [];
 
-			console.log(baseChanges);
-
-			baseChanges = this.transformChangeBasedChanges(baseChanges, firstChange);
-			newChanges = newChanges.concat(baseChanges);
-
-			_.each(leftChanges, function (wantChange) {
-				baseChanges = this.transformChangeBasedChanges(baseChanges, wantChange);
-				newChanges = newChanges.concat(baseChanges);
+			_.each(wantChanges, function (wantChange) {
+				wantChange = this.transformChangeBasedChanges(baseChanges, wantChange);
+				baseChanges.push(wantChange);
+				newChanges.push(wantChange);
 			}, this);
 
-			console.log('at last, the changes: ', newChanges);
-
-			console.timeEnd('merging revs');
+			var end = new Date().getTime();
+			console.log('time elapsed: ', end - start);
 
 			return newChanges;
 		},
 
 		transformChangeBasedChanges: function (baseChanges, change) {
-			var newChanges = [change];
+			var wantChange = change;
 
 			_.each(baseChanges, function (baseChange) {
-				var transformedChanges = [];
-
-				_.each(newChanges, function (wantChange) {
-					transformedChanges = transformedChanges.concat(this.operationTransform(baseChange, wantChange));
-				}, this);
-
-				newChanges = transformedChanges;
+				wantChange = this.operationTransform(baseChange, wantChange);
 			}, this);
 
-			return newChanges;
+			return wantChange;
 		},
 
 		operationTransform: function (baseChange, wantChange) {
@@ -136,27 +127,10 @@ define([
 					// want change: remove cd => ab(cd)e       ['', -1, 2, 4, 'cd']
 					// base change insert qw =>  ab(c[qw]d)e   ['', 1, 3, 5, 'qw']
 					// split two changes => ['', -1, 2, 3, 'c'], ['', -1, 5, 6, 'd']
+					// but for process convinience, we just remove all the changes
 					if (cOp == -1) {
 						dist = rEnd - rStart;
-
-						var start1 = cStart,
-							end1 = rStart,
-							splitLen = end1 - start1,
-							text1 = cText.substring(0, splitLen),
-							start2 = rEnd,
-							end2 = cEnd + dist,
-							text2 = cText.substring(splitLen);
-
-						var change1 = _.clone(wantChange),
-							change2 = _.clone(wantChange);
-
-						change1[2] = start1;
-						change1[3] = end1;
-						change2[2] = start2;
-						change2[3] = end2;
-
-						changes.push(change1);
-						changes.push(change2);
+						cEnd += dist;
 					}
 				} else {
 					dist = rEnd - rStart;
@@ -177,7 +151,7 @@ define([
 				changes.push(newChange);
 			}
 
-			return changes;
+			return changes[0];
 		}
 	};
 });
