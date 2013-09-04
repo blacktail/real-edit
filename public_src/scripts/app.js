@@ -5,5 +5,23 @@ define(['lodash'], function (_) {
 
 	};
 	
+	window.console = window.console || {
+		log: function () {
+
+		},
+
+		time: function () {
+
+		},
+
+		timeEnd: function () {
+
+		},
+
+		debug: function () {
+
+		}
+	};
+
 	return app;
 });

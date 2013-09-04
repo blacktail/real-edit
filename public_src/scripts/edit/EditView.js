@@ -51,6 +51,8 @@ define([
 			};
 
 			this.changeArr = [];
+			this.pending = true;
+			console.time('doc init time');
 		},
 
 		render: function(model) {
@@ -82,6 +84,10 @@ define([
 
 		initEditor: function () {
 			window.aceEditor = this.editor = ace.edit(this.$('#editor')[0]);
+
+			// wait until doc init event
+			this.editor.setReadOnly(true);
+
 			this.$('.messages .panel-body').height($(window).height() - 421);
 			this.$('#editor').height($('.sidebar').height());
 			
@@ -234,6 +240,9 @@ define([
 			this.dontChange = true;
 			this.doc.setValue(rev.c);
 			this.dontChange = false;
+			this.pending = false;
+			this.editor.setReadOnly(false);
+			console.timeEnd('doc init time');
 		},
 
 		onDocAck: function (data) {
