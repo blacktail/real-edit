@@ -13,7 +13,7 @@ define([
 	app.views = [];
 
 	_.each(routers, function (Router) {
-		if (Router && _.isfunction (Router)) {
+		if (Router && _.isFunction (Router)) {
 			new Router();
 		}
 	});
