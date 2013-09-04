@@ -15,7 +15,7 @@ echo 'node version: '`node --version`
 
 echo 'installing dependencies'
 
-npm install --production &>/dev/null
+npm install --production 
 
 if [ ! -d "./logs" ]; then
 	echo 'create logs directory'

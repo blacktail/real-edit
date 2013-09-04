@@ -50,8 +50,6 @@ define([
 		},
 
 		mergeChangesIntoRevChanges: function (changes, revChanges) {
-			var start = new Date().getTime();
-
 			if (changes.length <= 0) {
 				return [];
 			}
@@ -60,18 +58,19 @@ define([
 				return changes;
 			}
 
+			var start = new Date().getTime();
+
 			var wantChanges = changes;
 			var baseChanges = revChanges;
 			var newChanges = [];
 
 			_.each(wantChanges, function (wantChange) {
 				wantChange = this.transformChangeBasedChanges(baseChanges, wantChange);
-				baseChanges.push(wantChange);
 				newChanges.push(wantChange);
 			}, this);
 
 			var end = new Date().getTime();
-			console.log('time elapsed: ', end - start);
+			console.log('time elapsed: ', end - start ,' ms');
 
 			return newChanges;
 		},
@@ -87,6 +86,7 @@ define([
 		},
 
 		operationTransform: function (baseChange, wantChange) {
+			console.log('operationTransform: ', JSON.stringify(wantChange), ' based ', JSON.stringify(baseChange));
 			var changes = [];
 				newChange = _.clone(wantChange);
 

@@ -278,11 +278,18 @@ define([
 
 				this.dontChange = true;
 
-				mergeResult = utils.merge(text, changes, cursorPos);
-				newText = mergeResult.text;
-				cursorPos = mergeResult.cursorPos;
-
 				this.curRevText = utils.merge(this.curRevText, changes);
+
+				this.changeArr = utils.mergeChangesIntoRevChanges(this.changeArr, changes);
+
+				if (this.changeArr.length <= 0) {
+						mergeResult = utils.merge(text, changes, cursorPos);
+						newText = mergeResult.text;
+						cursorPos = mergeResult.cursorPos;
+				} else {
+					newText = utils.merge(this.curRevText, this.changeArr);
+				}
+				
 				this.curRevision = newRevision;
 
 				this.doc.setValue(newText); //todo, need optimization
@@ -319,6 +326,8 @@ define([
 			if (revChanges.length > 0) {
 				var	baseRevText = this.curRevText,
 				newChanges = utils.mergeChangesIntoRevChanges(this.changeArr, revChanges);
+
+				this.changeArr = newChanges;
 
 				this.curRevText = utils.merge(baseRevText, revChanges);
 				this.curRevision = revs[revs.length - 1].r;
