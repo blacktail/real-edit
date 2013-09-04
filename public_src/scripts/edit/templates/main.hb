@@ -5,7 +5,7 @@
 		</div>
 		<div class="collapse navbar-collapse navbar-ex2-collapse">
 			<button id="new" type="button" class="btn btn-default navbar-btn btn-xs">New</button>
-			<a id="history" type="button" class="btn btn-default btn-xs" target="_blank" href="/history/{{fileName}}/1">History</a>
+			<a id="history" type="button" class="btn btn-default btn-xs" target="_blank" href="/history/{{fileName}}">History</a>
 			<a id="download" type="button" class="btn btn-default btn-xs" target="_blank" href="/download/{{fileName}}">Download</a>
 			<div class="user-info pull-right">
 				<a href="#" id="userName">{{user}}</a>

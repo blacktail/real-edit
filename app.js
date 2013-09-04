@@ -75,13 +75,13 @@ app.get('/download/:fileName/:revId?', function (req, res) {
 
 app.get('/history/:fileName/:pageNo?/:pageSize?', function (req, res) {
 	var fileName = req.param('fileName'),
-		pageNo = parseInt(req.param('pageNo')) || 1,
+		pageNo = parseInt(req.param('pageNo')),
 		pageSize = parseInt(req.param('pageSize')) || 20;
 
 	iolib.getFileRevs(fileName, pageNo, pageSize, function (err, data) {
-		var curPage = pageNo,
-			prevPage = Math.max(pageNo - 1, 1),
-			nextPage = Math.min(pageNo + 1, data.totalPage);
+		var curPage = Math.min(data.curPage, data.totalPage),
+			prevPage = Math.max(curPage - 1, 1),
+			nextPage = Math.min(curPage + 1, data.totalPage);
 
 		prevPage = prevPage == curPage ? null : prevPage;
 		nextPage = nextPage == curPage ? null : nextPage;
