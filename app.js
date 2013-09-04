@@ -9,8 +9,7 @@ var express = require('express'),
 	iolib = require('./lib/io'),
 	Handlebars = require('handlebars');
 
-	require('./lib/handlebars_helper')(Handlebars);
-
+require('./lib/handlebars_helper')(Handlebars);
 
 app.engine('html', cons.handlebars);
 
@@ -19,15 +18,20 @@ app.configure(function () {
 
 	app.set('view engine', 'html');
 	app.set('views', __dirname + '/views');
-	
 });
 
 app.configure('development', function () {
-	app.use(express.static(__dirname + '/public_src', {maxAge: 365 * 24 * 60 * 60 * 1000, hidden: true}));
+	app.use(express.static(__dirname + '/public_src', {
+		maxAge: 365 * 24 * 60 * 60 * 1000,
+		hidden: true
+	}));
 });
 
 app.configure('production', function () {
-	app.use(express.static(__dirname + '/public', {maxAge: 365 * 24 * 60 * 60 * 1000, hidden: true}));
+	app.use(express.static(__dirname + '/public', {
+		maxAge: 365 * 24 * 60 * 60 * 1000,
+		hidden: true
+	}));
 });
 
 app.get('/', function (req, res) {

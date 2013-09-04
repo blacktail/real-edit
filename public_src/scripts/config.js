@@ -1,7 +1,8 @@
 require.config({
 	baseUrl: '/scripts',
-	packages: ['index', 'edit', 
-		'common/templates', 'index/templates', 'edit/templates'],
+	packages: ['index', 'edit',
+		'common/templates', 'index/templates', 'edit/templates'
+	],
 	paths: {
 		'jquery': '../components/jquery/jquery',
 		'lodash': '../components/lodash/lodash',
@@ -38,5 +39,5 @@ require.config({
 		}
 	},
 
-	urlArgs: "bust=" +  (new Date()).getTime()
+	urlArgs: "bust=" + (new Date()).getTime()
 });

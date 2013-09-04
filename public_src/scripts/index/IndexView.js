@@ -29,11 +29,13 @@ define([
 				event.preventDefault();
 
 				var fileName = $.trim(this.$('#fileName').val()) || 'new';
-				
+
 				if (fileName == 'new') {
 					location.href = '/new';
 				} else {
-					Backbone.history.navigate('/' + fileName, {trigger: true});
+					Backbone.history.navigate('/' + fileName, {
+						trigger: true
+					});
 
 				}
 			}

@@ -14,7 +14,7 @@ define([
 			});
 
 			$('#main').removeClass();
-			
+
 			app.views = [];
 
 			var router = this;

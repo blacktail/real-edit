@@ -6,8 +6,8 @@ define([
 	'common/utils',
 	'common/PromptView',
 	'socket.io'
-], function(EditView, app, Backbone, $, utils, ModalView, io) {
-	return function(router, routeName, initData, fileName) {
+], function (EditView, app, Backbone, $, utils, ModalView, io) {
+	return function (router, routeName, initData, fileName) {
 		var model = new Backbone.Model(),
 			editView = new EditView({
 				model: model,

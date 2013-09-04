@@ -99,14 +99,20 @@ module.exports = function (grunt) {
 				files: getHtmlEntriesConfig(packages)
 			},
 			imgs: {
-				files: [
-					{expand: true, src: getSrcFiles(['css/**/img/*.*', 'img/*.*']), dest: destDir, filter: 'isFile'}
-				]
+				files: [{
+					expand: true,
+					src: getSrcFiles(['css/**/img/*.*', 'img/*.*']),
+					dest: destDir,
+					filter: 'isFile'
+				}]
 			},
 			ace: {
-				files: [
-					{expand: true, cwd: 'public_src', src: 'ace-builds-1.1.01/**', dest: destDir}
-				]
+				files: [{
+					expand: true,
+					cwd: 'public_src',
+					src: 'ace-builds-1.1.01/**',
+					dest: destDir
+				}]
 			}
 		},
 
@@ -122,7 +128,8 @@ module.exports = function (grunt) {
 				'-W030': true
 			},
 			all: getSrcFiles(['scripts/**/*.js', '!scripts/**/.*_compiled.js',
-				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*', '!scripts/common/socket.io.js', '!scripts/common/diff_match_patch.js'])
+				'!scripts/**/.auto_*.js', '!scripts/startup.js', '!scripts/text.js', '!**/.*', '!scripts/common/socket.io.js', '!scripts/common/diff_match_patch.js'
+			])
 		},
 
 		clean: {
@@ -192,11 +199,11 @@ function getRequirejsConfigHelper(type, inPath, outPath, isStartup) {
 				preserveLicenseComments: false,
 				generateSourceMaps: true,
 				paths: _.extend({
-						'handlebars': '../components/handlebars/handlebars.runtime',
-						'common/partials_compiled': 'common/templates/.partials_compiled',
-						'common/templates_compiled': 'common/templates/.templates_compiled'
-					}, packagePaths),
-				exclude: isStartup ? []: ['startup']
+					'handlebars': '../components/handlebars/handlebars.runtime',
+					'common/partials_compiled': 'common/templates/.partials_compiled',
+					'common/templates_compiled': 'common/templates/.templates_compiled'
+				}, packagePaths),
+				exclude: isStartup ? [] : ['startup']
 			}
 		};
 	} else if (type == 'css') {
@@ -228,10 +235,12 @@ function getTemplatePathsConfig(type, isDebug) {
 	if (type == 'templates') {
 		if (isDebug) {
 			fileConfig[getSrcFile('scripts/common/templates/.auto_templates.js')] = getSrcFiles(['scripts/common/templates/**/*.hb',
-						'!scripts/common/templates/partials/**/*.hb']);
+				'!scripts/common/templates/partials/**/*.hb'
+			]);
 		} else {
 			fileConfig[getSrcFile('scripts/common/templates/.templates_compiled.js')] = getSrcFiles(['scripts/common/templates/**/*.hb',
-						'!scripts/common/templates/partials/**/*.hb']);
+				'!scripts/common/templates/partials/**/*.hb'
+			]);
 		}
 	}
 
@@ -251,10 +260,12 @@ function getTemplatePathsConfig(type, isDebug) {
 		if (type == 'templates') {
 			if (isDebug) {
 				fileConfig[templatePath + '/templates/.auto_templates.js'] = [templatePath + '/templates/**/*.hb',
-							'!' + templatePath + '/templates/partials/**/*.hb'];
+					'!' + templatePath + '/templates/partials/**/*.hb'
+				];
 			} else {
 				fileConfig[templatePath + '/templates/.templates_compiled.js'] = [templatePath + '/templates/**/*.hb',
-							'!' + templatePath + '/templates/partials/**/*.hb'];
+					'!' + templatePath + '/templates/partials/**/*.hb'
+				];
 			}
 		}
 	});
@@ -298,7 +309,8 @@ function getWatchConfig() {
 				nospawn: true
 			},
 			files: getSrcFiles(['scripts/**/*.js', '!scripts/**/.*_compiled.js', '!scripts/startup.js',
-				'!scripts/**/.auto_*.js', '!scripts/config.js', '!scripts/common/socket.io.js', '!scripts/common/diff_match_patch.js']),
+				'!scripts/**/.auto_*.js', '!scripts/config.js', '!scripts/common/socket.io.js', '!scripts/common/diff_match_patch.js'
+			]),
 			tasks: ['jshint']
 		},
 		less: {
@@ -362,7 +374,7 @@ function getFiles(root, paths) {
 			isNo = true;
 		}
 
-		results.push((isNo ? '!': '') + root + path.replace(/^([^\/])(.*)/, '/$1$2'));
+		results.push((isNo ? '!' : '') + root + path.replace(/^([^\/])(.*)/, '/$1$2'));
 	});
 
 	return results;

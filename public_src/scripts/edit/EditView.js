@@ -5,7 +5,7 @@ define([
 	'jquery',
 	'common/utils',
 	'common/PromptView'
-], function(_, Backbone, templates, $, utils, PromptView) {
+], function (_, Backbone, templates, $, utils, PromptView) {
 	var EditView = Backbone.View.extend({
 		tagName: 'div',
 		id: 'editPage',
@@ -21,7 +21,7 @@ define([
 			'click #new': 'createNewFile'
 		},
 
-		initialize: function(options) {
+		initialize: function (options) {
 			this.listenTo(this.model, 'change', this.render);
 			this.listenTo(this.model, 'change:user', this.updateUserInfo);
 			this.listenTo(this.model, 'change:language', this.updateEditorStatus);
@@ -52,7 +52,7 @@ define([
 			console.time('doc init time');
 		},
 
-		render: function(model) {
+		render: function (model) {
 			// make only render once
 			if (this.rendered) {
 				return;
@@ -63,10 +63,10 @@ define([
 			var that = this;
 			// init ace editor
 			if (typeof ace == 'undefined') {
-				utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/ace.js', function() {
+				utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/ace.js', function () {
 					that.initEditor();
 				});
-				
+
 			} else {
 				that.initEditor();
 			}
@@ -87,15 +87,13 @@ define([
 
 			this.$('.messages .panel-body').height($(window).height() - 421);
 			this.$('#editor').height($('.sidebar').height());
-			
+
 			this.updateEditorStatus();
 
 			this.editor.focus();
 
-			utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/keybinding-emacs.js', function() {
-			});
-			utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/keybinding-vim.js', function() {
-			});
+			utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/keybinding-emacs.js', function () {});
+			utils.loadScript('/ace-builds-1.1.01/src-min-noconflict/keybinding-vim.js', function () {});
 
 			this.editor.on('change', _.bind(this.onEditorChange, this));
 
@@ -135,7 +133,7 @@ define([
 						localStorage.realEditUser = name;
 					}
 				}
-			});	
+			});
 		},
 
 		changeKeyBinding: function () {
@@ -289,13 +287,13 @@ define([
 				this.changeArr = utils.mergeChangesIntoRevChanges(this.changeArr, changes);
 
 				if (this.changeArr.length <= 0) {
-						mergeResult = utils.merge(text, changes, cursorPos);
-						newText = mergeResult.text;
-						cursorPos = mergeResult.cursorPos;
+					mergeResult = utils.merge(text, changes, cursorPos);
+					newText = mergeResult.text;
+					cursorPos = mergeResult.cursorPos;
 				} else {
 					newText = utils.merge(this.curRevText, this.changeArr);
 				}
-				
+
 				this.curRevision = newRevision;
 
 				this.doc.setValue(newText); //todo, need optimization
@@ -330,8 +328,8 @@ define([
 			});
 
 			if (revChanges.length > 0) {
-				var	baseRevText = this.curRevText,
-				newChanges = utils.mergeChangesIntoRevChanges(this.changeArr, revChanges);
+				var baseRevText = this.curRevText,
+					newChanges = utils.mergeChangesIntoRevChanges(this.changeArr, revChanges);
 
 				this.changeArr = newChanges;
 
@@ -343,7 +341,7 @@ define([
 				this.doc.setValue(editorText);
 				this.dontChange = false;
 			}
-			
+
 			this.syncing = false;
 			this.pending = false;
 
@@ -361,10 +359,10 @@ define([
 			if (change.action == 'removeLines' || change.action == 'insertLines') {
 				var nlNums = change.lines.length * nl.length,
 					textNums = 0;
-					_.each(change.lines, function (line) {
-						textNums += line.length;
-						text += line + nl;
-					});
+				_.each(change.lines, function (line) {
+					textNums += line.length;
+					text += line + nl;
+				});
 
 
 				end = start + textNums + nlNums;

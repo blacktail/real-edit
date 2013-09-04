@@ -8,7 +8,7 @@ define([
 			script.src = url;
 			document.body.appendChild(script);
 
-			script.onload = cb || function() {};
+			script.onload = cb || function () {};
 		},
 
 		merge: function (text, changes, cursorPos) {
@@ -71,7 +71,7 @@ define([
 
 			console.log('changes: ', newChanges);
 			var end = new Date().getTime();
-			console.log('time elapsed: ', end - start ,' ms');
+			console.log('time elapsed: ', end - start, ' ms');
 
 			return newChanges;
 		},
@@ -86,7 +86,7 @@ define([
 					var changes = this.operationTransform(baseChange, wantChange);
 					tmpChanges = tmpChanges.concat(changes);
 				}, this);
-				
+
 				recurChanges = tmpChanges;
 			}, this);
 
@@ -95,7 +95,7 @@ define([
 
 		operationTransform: function (baseChange, wantChange) {
 			console.log('operationTransform: ', JSON.stringify(wantChange), ' based ', JSON.stringify(baseChange));
-			var changes = [];
+			var changes = [],
 				newChange = _.clone(wantChange);
 
 			var rOp = baseChange[1],
@@ -115,13 +115,13 @@ define([
 					dist = Math.min(cEnd, rEnd) - rStart;
 
 					cEnd -= dist;
-				} else if ( rEnd <= cStart) {
+				} else if (rEnd <= cStart) {
 					dist = rEnd - rStart;
 					cStart -= dist;
 					cEnd -= dist;
 				} else if (rEnd > cEnd) {
 					cEnd = cStart;
-				} else {		// rEnd is in [cStart, cEnd], rStart < cStart.
+				} else { // rEnd is in [cStart, cEnd], rStart < cStart.
 					dist = rEnd - rStart;
 					cStart = rStart;
 					cEnd -= dist;
@@ -129,7 +129,7 @@ define([
 			} else {
 				if (rStart >= cEnd) {
 					// do nothing, has no effect
-				} else if  (rStart > cStart) {
+				} else if (rStart > cStart) {
 					// here is a very special case, wantChange want remove some text, but baseChange has insert some text in it!
 					// original text: abcde
 					// want change: remove cd => ab(cd)e       ['', -1, 2, 4, 'cd']

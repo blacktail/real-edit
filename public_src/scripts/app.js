@@ -4,7 +4,7 @@ define(['lodash'], function (_) {
 	var app = {
 
 	};
-	
+
 	window.console = window.console || {
 		log: function () {
 
