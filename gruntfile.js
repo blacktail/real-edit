@@ -121,8 +121,21 @@ module.exports = function (grunt) {
 				files: [{
 					expand: true,
 					src: ['deploy.sh', 'package.json', 'startup_production.sh', 'views/**', 'config/**',
-						'node_modules/**', '!node_modules/grunt*/**', 'public/**', 'deploy/**'],
+						'node_modules/**', '!node_modules/grunt*/**', 'public/**', 'deploy/**', '!deploy/node-32/bin/npm',
+						'!deploy/node-64/bin/npm'],
 					dest: distDir
+				}]
+			}
+		},
+
+		symlink: {
+			npm: {
+				files: [{
+					src: ['dist/deploy/node-32/lib/node_modules/npm/bin/npm-cli.js'],
+					dest: 'dist/deploy/node-32/bin/npm'
+				}, {
+					src: ['dist/deploy/node-64/lib/node_modules/npm/bin/npm-cli.js'],
+					dest: 'dist/deploy/node-64/bin/npm'
 				}]
 			}
 		},
@@ -147,6 +160,20 @@ module.exports = function (grunt) {
 				}, {
 					src: 'lib/utils.js',
 					dest: distDir + '/lib/utils.js'
+				}]
+			}
+		},
+
+		compress: {
+			  main: {
+				options: {
+					archive: 'dist.tar.gz',
+					mode: 'tgz'
+				},
+				files: [{
+					expand: true,
+					src: 'dist/**',
+					dest: '.'
 				}]
 			}
 		},
@@ -180,18 +207,19 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-lodash');
 	grunt.loadNpmTasks('grunt-contrib-requirejs');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-livereload');
 	grunt.loadNpmTasks('grunt-contrib-handlebars');
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-symlink');
+	grunt.loadNpmTasks('grunt-contrib-compress');
 
 	grunt.loadTasks('grunt_tasks');
 
 	grunt.registerTask('init', ['less', 'templates_debug', 'concat:startup', 'watch']);
-	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'uglify', 'clean:temporary']);
+	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'symlink', 'uglify', 'compress', 'clean:temporary']);
 	grunt.registerTask('default', ['dist', 'init']);
 
 	grunt.event.on('watch', function (action, filePath) {
