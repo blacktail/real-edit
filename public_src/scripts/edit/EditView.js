@@ -4,9 +4,8 @@ define([
 	'edit/templates',
 	'jquery',
 	'common/utils',
-	'common/PromptView',
-	'dmp'
-], function(_, Backbone, templates, $, utils, PromptView, Dmp) {
+	'common/PromptView'
+], function(_, Backbone, templates, $, utils, PromptView) {
 	var EditView = Backbone.View.extend({
 		tagName: 'div',
 		id: 'editPage',
@@ -40,8 +39,6 @@ define([
 			this.socket.on('doc:ack', _.bind(this.onDocAck, this));
 			this.socket.on('doc:changed', _.bind(this.onDocRemoteChanged, this));
 			this.socket.on('doc:sync', _.bind(this.onDocSync, this));
-
-			this.dmp = new Dmp();
 
 			this.opMap = {
 				'insertText': 1,

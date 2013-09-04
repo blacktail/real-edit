@@ -17,8 +17,7 @@ require.config({
 		'common/partials_compiled': 'common/templates/.auto_partials',
 		'common/templates_compiled': 'common/templates/.auto_templates',
 		'index/templates_compiled': 'index/templates/.auto_templates',
-		'edit/templates_compiled': 'edit/templates/.auto_templates',
-		'dmp': 'common/diff_match_patch'
+		'edit/templates_compiled': 'edit/templates/.auto_templates'
 	},
 	shim: {
 		'handlebars': {
@@ -36,9 +35,6 @@ require.config({
 		'bootstrap-modal': ['jquery'],
 		'socket.io': {
 			exports: 'io'
-		},
-		'dmp': {
-			exports: 'diff_match_patch'
 		}
 	},
 

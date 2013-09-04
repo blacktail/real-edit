@@ -1,5 +1,6 @@
 var express = require('express'),
 	app = express(),
+	_ = require('lodash'),
 	server = require('http').createServer(app),
 	io = require('socket.io').listen(server),
 	cons = require('consolidate'),
@@ -46,38 +47,29 @@ app.get('/:fileName', function (req, res) {
 
 app.get('/download/:fileName/:revId?', function (req, res) {
 	var fileName = req.param('fileName'),
-		revId = req.param('revId');
+		revId = req.param('revId') || 0;
 
-	if (!revId) {
-		iolib.getCurrentRev(fileName, function (err, rev) {
-			if (err) {
-				res.send(err);
-			} else {
-				res.setHeader('Content-disposition', 'attachment; filename=' + fileName + '_' + rev.r);
-				res.setHeader('Content-type', 'application/octet-stream');
-				res.end(rev.c || '');
-			}
-		});
-	} else {
-		iolib.getRevById(fileName, revId, function (err, rev) {
-			if (err) {
-				res.send(err);
-			} else {
-				res.setHeader('Content-disposition', 'attachment; filename=' + fileName + '_' + rev.r);
-				res.setHeader('Content-type', 'application/octet-stream');
-				res.end(rev.c || '');
-			}
-		});
-	}
+	iolib.getRevById(fileName, revId, function (err, rev) {
+		if (err) {
+			res.send(err);
+		} else {
+			res.setHeader('Content-disposition', 'attachment; filename=' + fileName + '_' + rev.r);
+			res.setHeader('Content-type', 'application/octet-stream');
+			res.end(rev.c || '');
+		}
+	});
 });
 
-app.get('/history/:fileName', function (req, res) {
-	var fileName = req.param('fileName');
+app.get('/history/:fileName/:pageNo?/:pageSize?', function (req, res) {
+	var fileName = req.param('fileName'),
+		pageNo = req.param('pageNo') || 1,
+		pageSize = req.param('pageSize') || 20;
 
-	iolib.getFileRevs(fileName, function (err, revs) {
+	iolib.getFileRevs(fileName, pageNo, pageSize, function (err, data) {
 		res.render('history', {
 			fileName: fileName,
-			revs: revs
+			revs: _.toArray(data.revs),
+			totalPage: data.totalPage
 		});
 	});
 });

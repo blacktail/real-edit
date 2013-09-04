@@ -17,7 +17,11 @@
 				<tbody>
 					{{#each revs}}
 						<tr>
-						<td>{{r}}</td><td>{{u}}</td><td>{{g}}</td><td>{{t}}</td><td><a href="/download/{{../fileName}}/{{r}}" target="_blank">download</a></td>
+						{{#if err}}
+							<td>{{err}}</td>
+						{{else}}
+							<td>{{r}}</td><td>{{u}}</td><td>{{g}}</td><td>{{t}}</td><td><a href="/download/{{../../fileName}}/{{r}}" target="_blank">download</a></td>
+						{{/if}}
 						</tr>
 					{{/each}}
 				</tbody>
