@@ -6,7 +6,11 @@ var express = require('express'),
 	io = require('socket.io').listen(server),
 	cons = require('consolidate'),
 	utils = require('./lib/utils'),
-	iolib = require('./lib/io');
+	iolib = require('./lib/io'),
+	Handlebars = require('handlebars');
+
+	require('./lib/handlebars_helper')(Handlebars);
+
 
 app.engine('html', cons.handlebars);
 
@@ -71,14 +75,24 @@ app.get('/download/:fileName/:revId?', function (req, res) {
 
 app.get('/history/:fileName/:pageNo?/:pageSize?', function (req, res) {
 	var fileName = req.param('fileName'),
-		pageNo = req.param('pageNo') || 1,
-		pageSize = req.param('pageSize') || 20;
+		pageNo = parseInt(req.param('pageNo')) || 1,
+		pageSize = parseInt(req.param('pageSize')) || 20;
 
 	iolib.getFileRevs(fileName, pageNo, pageSize, function (err, data) {
+		var curPage = pageNo,
+			prevPage = Math.max(pageNo - 1, 1),
+			nextPage = Math.min(pageNo + 1, data.totalPage);
+
+		prevPage = prevPage == curPage ? null : prevPage;
+		nextPage = nextPage == curPage ? null : nextPage;
+
 		res.render('history', {
 			fileName: fileName,
 			revs: _.toArray(data.revs),
-			totalPage: data.totalPage
+			totalPage: data.totalPage,
+			curPage: curPage,
+			prevPage: prevPage,
+			nextPage: nextPage
 		});
 	});
 });

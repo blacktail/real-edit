@@ -8,27 +8,49 @@
 	</head>
 	<body>
 		<div id="main">
-			<table class="table">
-				<thead>
-					<tr>
-						<td>id</td><td>commitor</td><td>changes</td><td>time</td><td>file</td>
-					</tr>
-				</thead>
-				<tbody>
-					{{#each revs}}
-						<tr>
-						{{#if err}}
-							<td>{{err}}</td>
+			<div id="historyPage" class="container">
+				<div class="row">
+				<ul class="pagination pagination-centered pull-left">
+					{{#if prevPage}}
+						<li><a href="/history/{{fileName}}/{{prevPage}}">&laquo;</a></li>
+					{{/if}}
+					{{#pageRange curPage totalPage range=3}}
+						{{#if disabled}}
+							<li class="disabled"><a>{{../display}}</a></li>
 						{{else}}
-							<td>{{r}}</td><td>{{u}}</td><td>{{g}}</td><td>{{t}}</td><td><a href="/download/{{../../fileName}}/{{r}}" target="_blank">download</a></td>
+							<li class="{{../active}}"><a href="/history/{{../../fileName}}/{{../pageNo}}"/>{{../display}}</a></li>
 						{{/if}}
-						</tr>
-					{{/each}}
-				</tbody>
-				<tfoot>
+					{{/pageRange}}
+					{{#if nextPage}}
+						<li><a href="/history/{{fileName}}/{{nextPage}}">&raquo;</a></li>
+					{{/if}}
+				</ul>
+				</div>
+				<div class="row">
 
-				</tfoot>
-			</table>
+					<table class="table table-hover table-condensed">
+						<thead>
+							<tr>
+								<td>id</td><td>commitor</td><td>changes</td><td>time</td><td>file</td>
+							</tr>
+						</thead>
+						<tbody>
+							{{#each revs}}
+								<tr>
+								{{#if err}}
+									<td>{{err}}</td>
+								{{else}}
+									<td>{{r}}</td><td>{{u}}</td><td style="width:300px;">{{g}}</td><td>{{timeFormat t}}</td><td><a href="/download/{{../../fileName}}/{{r}}" target="_blank">download</a></td>
+								{{/if}}
+								</tr>
+							{{/each}}
+						</tbody>
+						<tfoot>
+							
+						</tfoot>
+					</table>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
