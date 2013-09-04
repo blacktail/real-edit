@@ -65,10 +65,11 @@ define([
 			var newChanges = [];
 
 			_.each(wantChanges, function (wantChange) {
-				wantChange = this.transformChangeBasedChanges(baseChanges, wantChange);
-				newChanges.push(wantChange);
+				wantChanges = this.transformChangeBasedChanges(baseChanges, wantChange);
+				newChanges = newChanges.concat(wantChanges);
 			}, this);
 
+			console.log('changes: ', newChanges);
 			var end = new Date().getTime();
 			console.log('time elapsed: ', end - start ,' ms');
 
@@ -76,13 +77,20 @@ define([
 		},
 
 		transformChangeBasedChanges: function (baseChanges, change) {
-			var wantChange = change;
+			var recurChanges = [change];
 
 			_.each(baseChanges, function (baseChange) {
-				wantChange = this.operationTransform(baseChange, wantChange);
+				var tmpChanges = [];
+
+				_.each(recurChanges, function (wantChange) {
+					var changes = this.operationTransform(baseChange, wantChange);
+					tmpChanges = tmpChanges.concat(changes);
+				}, this);
+				
+				recurChanges = tmpChanges;
 			}, this);
 
-			return wantChange;
+			return recurChanges;
 		},
 
 		operationTransform: function (baseChange, wantChange) {
@@ -129,8 +137,30 @@ define([
 					// split two changes => ['', -1, 2, 3, 'c'], ['', -1, 5, 6, 'd']
 					// but for process convinience, we just remove all the changes
 					if (cOp == -1) {
+						// dist = rEnd - rStart;
+						// cEnd += dist;
+
 						dist = rEnd - rStart;
-						cEnd += dist;
+
+						var start1 = cStart,
+							end1 = rStart,
+							splitLen = end1 - start1,
+							text1 = cText.substring(0, splitLen),
+							start2 = rEnd,
+							end2 = cEnd + dist,
+							text2 = cText.substring(splitLen);
+
+						var change1 = _.clone(wantChange),
+							change2 = _.clone(wantChange);
+
+						var dist1 = end1 - start1;
+						change1[2] = start1;
+						change1[3] = end1;
+						change2[2] = start2 - dist1;
+						change2[3] = end2 - dist1;
+
+						changes.push(change1);
+						changes.push(change2);
 					}
 				} else {
 					dist = rEnd - rStart;
@@ -151,7 +181,7 @@ define([
 				changes.push(newChange);
 			}
 
-			return changes[0];
+			return changes;
 		}
 	};
 });
