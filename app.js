@@ -1,6 +1,7 @@
 var express = require('express'),
 	app = express(),
 	_ = require('lodash'),
+	async = require('async'),
 	server = require('http').createServer(app),
 	io = require('socket.io').listen(server),
 	cons = require('consolidate'),
@@ -47,9 +48,17 @@ app.get('/:fileName', function (req, res) {
 
 app.get('/download/:fileName/:revId?', function (req, res) {
 	var fileName = req.param('fileName'),
-		revId = req.param('revId') || 0;
+		revId = req.param('revId');
 
-	iolib.getRevById(fileName, revId, function (err, rev) {
+	async.waterfall([
+		function (cb) {
+			if (revId == void 0) {
+				iolib.getCurrentRev(fileName, cb);
+			} else {
+				iolib.getRevById(fileName, revId, cb);
+			}
+		}
+	], function (err, rev) {
 		if (err) {
 			res.send(err);
 		} else {
