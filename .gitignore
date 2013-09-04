@@ -1,4 +1,5 @@
 node_modules
+dist
 /public_src/components/*
 /public_src/.auto_*.js
 /public_src/.*_compiled.js

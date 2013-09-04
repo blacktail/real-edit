@@ -4,8 +4,8 @@ var _ = require('lodash'),
 		'edit': 'views/edit.html'
 	},
 	srcDir = 'public_src',
-	destDir = 'public';
-
+	destDir = 'public',
+	distDir = 'dist';
 
 module.exports = function (grunt) {
 	var buildVersion = encodeURIComponent(grunt.template.date(new Date().getTime(), 'yyyymmddHHMMsso'));
@@ -113,6 +113,41 @@ module.exports = function (grunt) {
 					src: 'ace-builds-1.1.01/**',
 					dest: destDir
 				}]
+			},
+			dist: {
+				options: {
+					mode: true
+				},
+				files: [{
+					expand: true,
+					src: ['deploy.sh', 'package.json', 'startup_production.sh', 'views/**', 'config/**',
+						'node_modules/**', '!node_modules/grunt*/**', 'public/**', 'deploy/**'],
+					dest: distDir
+				}]
+			}
+		},
+
+		uglify: {
+			options: {
+				mangle: true
+			},
+			nodejs: {
+				files: [{
+					src: 'app.js',
+					dest: distDir + '/app.js'
+				}, {
+					src: 'lib/config_util.js',
+					dest: distDir + '/lib/config_util.js'
+				}, {
+					src: 'lib/handlebars_helper.js',
+					dest: distDir + '/lib/handlebars_helper.js'
+				}, {
+					src: 'lib/io.js',
+					dest: distDir + '/lib/io.js'
+				}, {
+					src: 'lib/utils.js',
+					dest: distDir + '/lib/utils.js'
+				}]
 			}
 		},
 
@@ -137,7 +172,7 @@ module.exports = function (grunt) {
 				force: true
 			},
 			temporary: getSrcFiles(['scripts/**/.auto_*', 'scripts/**/.*_compiled*', 'scripts/**/.*.js']),
-			dist: [destDir]
+			dist: [destDir, distDir]
 		}
 	});
 
@@ -156,7 +191,7 @@ module.exports = function (grunt) {
 	grunt.loadTasks('grunt_tasks');
 
 	grunt.registerTask('init', ['less', 'templates_debug', 'concat:startup', 'watch']);
-	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'clean:temporary']);
+	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'uglify', 'clean:temporary']);
 	grunt.registerTask('default', ['dist', 'init']);
 
 	grunt.event.on('watch', function (action, filePath) {
