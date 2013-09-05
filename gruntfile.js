@@ -120,7 +120,7 @@ module.exports = function (grunt) {
 				},
 				files: [{
 					expand: true,
-					src: ['deploy.sh', 'package.json', 'startup_production.sh', 'views/**', 'config/**',
+					src: ['deploy.sh', 'package.json', 'views/**', 'config/**',
 						'node_modules/**', '!node_modules/grunt*/**', 'public/**', 'deploy/**', '!deploy/node-32/bin/npm',
 						'!deploy/node-64/bin/npm'],
 					dest: distDir
@@ -164,12 +164,6 @@ module.exports = function (grunt) {
 			}
 		},
 
-		shell: {
-			gzipdist: {
-				command: 'tar -zcf dist.tar.gz dist'
-			}
-		},
-
 		/*resolve dependecies, js&css optimization*/
 		requirejs: getRequirejsConfig(destDir),
 
@@ -191,7 +185,11 @@ module.exports = function (grunt) {
 				force: true
 			},
 			temporary: getSrcFiles(['scripts/**/.auto_*', 'scripts/**/.*_compiled*', 'scripts/**/.*.js']),
-			dist: [destDir, distDir]
+			dist: [destDir, distDir, 'dist*.tar.gz']
+		},
+
+		tarball: {
+			dist: {}
 		}
 	});
 
@@ -206,12 +204,11 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-symlink');
-	grunt.loadNpmTasks('grunt-shell');
 
 	grunt.loadTasks('grunt_tasks');
 
 	grunt.registerTask('init', ['less', 'templates_debug', 'concat:startup', 'watch']);
-	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'symlink', 'uglify', 'shell:gzipdist', 'clean:temporary']);
+	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'symlink', 'uglify', 'tarball', 'clean:temporary']);
 	grunt.registerTask('default', ['dist', 'init']);
 
 	grunt.event.on('watch', function (action, filePath) {

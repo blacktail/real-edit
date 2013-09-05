@@ -30,7 +30,6 @@
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-contrib-less": "~0.6.4",
-    "grunt-contrib-symlink": "~0.2.0",
-    "grunt-shell": "~0.3.1"
+    "grunt-contrib-symlink": "~0.2.0"
   }
 }
