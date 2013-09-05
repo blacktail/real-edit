@@ -31,6 +31,6 @@
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-contrib-less": "~0.6.4",
     "grunt-contrib-symlink": "~0.2.0",
-    "grunt-contrib-compress": "~0.5.2"
+    "grunt-shell": "~0.3.1"
   }
 }

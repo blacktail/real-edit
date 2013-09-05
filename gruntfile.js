@@ -164,17 +164,9 @@ module.exports = function (grunt) {
 			}
 		},
 
-		compress: {
-			  main: {
-				options: {
-					archive: 'dist.tar.gz',
-					mode: 'tgz'
-				},
-				files: [{
-					expand: true,
-					src: 'dist/**',
-					dest: '.'
-				}]
+		shell: {
+			gzipdist: {
+				command: 'tar -zcf dist.tar.gz dist'
 			}
 		},
 
@@ -214,12 +206,12 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-symlink');
-	grunt.loadNpmTasks('grunt-contrib-compress');
+	grunt.loadNpmTasks('grunt-shell');
 
 	grunt.loadTasks('grunt_tasks');
 
 	grunt.registerTask('init', ['less', 'templates_debug', 'concat:startup', 'watch']);
-	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'symlink', 'uglify', 'compress', 'clean:temporary']);
+	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'symlink', 'uglify', 'shell:gzipdist', 'clean:temporary']);
 	grunt.registerTask('default', ['dist', 'init']);
 
 	grunt.event.on('watch', function (action, filePath) {
