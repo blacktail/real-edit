@@ -292,6 +292,14 @@ define([
 					cursorPos = mergeResult.cursorPos;
 				} else {
 					newText = utils.merge(this.curRevText, this.changeArr);
+
+					var lastChange = _.last(this.changeArr);
+
+					if (lastChange[1] == -1) {
+						cursorPos = lastChange[2];
+					} else {
+						cursorPos = lastChange[3];
+					}
 				}
 
 				this.curRevision = newRevision;
@@ -338,8 +346,23 @@ define([
 				var editorText = utils.merge(this.curRevText, newChanges);
 
 				this.dontChange = true;
+
+				var cursorPos,
+					lastChange = _.last(this.changeArr);
+
+				if (lastChange[1] == -1) {
+					cursorPos = lastChange[2];
+				} else {
+					cursorPos = lastChange[3];
+				}
+				
 				this.doc.setValue(editorText);
+				this.editor.moveCursorToPosition(this.doc.indexToPosition(cursorPos));
+				this.editor.clearSelection();
+
 				this.dontChange = false;
+
+				this.syncLatestRevision();
 			}
 
 			this.syncing = false;

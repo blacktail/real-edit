@@ -185,7 +185,9 @@ module.exports = function (grunt) {
 				force: true
 			},
 			temporary: getSrcFiles(['scripts/**/.auto_*', 'scripts/**/.*_compiled*', 'scripts/**/.*.js']),
-			dist: [destDir, distDir, 'dist*.tar.gz']
+			dest: [destDir],
+			distDir: [distDir],
+			tarball: ['dist*.tar.gz']
 		},
 
 		tarball: {
@@ -208,7 +210,7 @@ module.exports = function (grunt) {
 	grunt.loadTasks('grunt_tasks');
 
 	grunt.registerTask('init', ['less', 'templates_debug', 'concat:startup', 'watch']);
-	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'symlink', 'uglify', 'tarball', 'clean:temporary']);
+	grunt.registerTask('dist', ['clean', 'less', 'jshint', 'handlebars', 'concat', 'requirejs', 'copy', 'symlink', 'uglify', 'tarball', 'clean:temporary', 'clean:distDir']);
 	grunt.registerTask('default', ['dist', 'init']);
 
 	grunt.event.on('watch', function (action, filePath) {
