@@ -1,7 +1,7 @@
 {
   "name": "real-edit",
   "description": "multi-users realtime editor for collab edit, lightweight operation transformation algorithm using node.js",
-	"keywords": ["realtime","editor","collab edit","operation transformation","web socket","express","backbone"],
+  "keywords": ["realtime","editor","collab edit","operation transformation","web socket","express","backbone"],
   "version": "0.0.1",
   "private": false,
   "author": "zhangping <mr.zhangping@gmail.com>",
