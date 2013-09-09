@@ -31,7 +31,7 @@ grunt init
 start in production mode: 
 
 ```
-./startup_dist.sh
+./startup_production.sh
 ```
 
 
