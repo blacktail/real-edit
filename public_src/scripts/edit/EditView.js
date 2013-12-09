@@ -98,6 +98,12 @@ define([
 			this.editor.on('change', _.bind(this.onEditorChange, this));
 
 			this.doc = this.editor.getSession().doc;
+
+			if (this.initContent) {
+				this.initEditorDoc(this.initContent);
+				delete this.initContent;
+			}
+			
 		},
 
 		updateEditorStatus: function () {
@@ -232,12 +238,26 @@ define([
 		onDocInit: function (rev) {
 			this.curRevision = rev.r;
 			this.curRevText = rev.c;
-			this.dontChange = true;
-			this.doc.setValue(rev.c);
-			this.dontChange = false;
+			this.initEditorDoc(rev.c);
 			this.pending = false;
-			this.editor.setReadOnly(false);
 			console.timeEnd('doc init time');
+		},
+
+		initEditorDoc: function (content) {
+			this.dontChange = true;
+
+			if (this.doc && this.doc.setValue) {
+				this.doc.setValue(content);
+
+				if (this.editor && this.editor.setReadOnly) {
+					this.editor.setReadOnly(false);
+				}
+
+			} else {
+				this.initContent = content;
+			}
+
+			this.dontChange = false;
 		},
 
 		onDocAck: function (data) {
