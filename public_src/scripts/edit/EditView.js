@@ -99,7 +99,7 @@ define([
 
 			this.doc = this.editor.getSession().doc;
 
-			if (this.initContent) {
+			if (this.initContent != void 0) {
 				this.initEditorDoc(this.initContent);
 				delete this.initContent;
 			}
@@ -254,7 +254,7 @@ define([
 				}
 
 			} else {
-				this.initContent = content;
+				this.initContent = content || '';
 			}
 
 			this.dontChange = false;
