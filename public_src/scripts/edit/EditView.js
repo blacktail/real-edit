@@ -163,7 +163,8 @@ define([
 				this.socket.emit('chat', {
 					chanel: this.fileName,
 					msg: msg,
-					user: this.model.get('user') || 'unknown'
+					user: this.model.get('user') || 'unknown',
+					time: new Date().getTime()
 				});
 
 				this.$('#message').val('');
@@ -182,6 +183,7 @@ define([
 		},
 
 		onNewMessage: function (data) {
+			data.timeStr = new Date(data.time).toLocaleString();
 			this.$('#msgList').append(templates['edit/message'](data));
 
 			$('.messages .always-into-view')[0].scrollIntoView();
