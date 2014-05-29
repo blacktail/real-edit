@@ -33,10 +33,7 @@ require.config({
 		'bootstrap-transition': ['jquery'],
 		'bootstrap-dropdown': ['jquery'],
 		'bootstrap-tooltip': ['jquery'],
-		'bootstrap-modal': ['jquery'],
-		'socket.io': {
-			exports: 'io'
-		}
+		'bootstrap-modal': ['jquery']
 	},
 
 	urlArgs: "bust=" + (new Date()).getTime()
