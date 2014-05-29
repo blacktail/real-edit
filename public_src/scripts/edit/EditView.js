@@ -4,9 +4,8 @@ define([
 	'edit/templates',
 	'jquery',
 	'common/utils',
-	'common/PromptView',
-	'socket.io'
-], function (_, Backbone, templates, $, utils, PromptView, io) {
+	'common/PromptView'
+], function (_, Backbone, templates, $, utils, PromptView) {
 	var EditView = Backbone.View.extend({
 		tagName: 'div',
 		id: 'editPage',
@@ -164,8 +163,7 @@ define([
 				this.socket.emit('chat', {
 					chanel: this.fileName,
 					msg: msg,
-					user: this.model.get('user') || 'unknown',
-					time: new Date().getTime()
+					user: this.model.get('user') || 'unknown'
 				});
 
 				this.$('#message').val('');
@@ -184,7 +182,6 @@ define([
 		},
 
 		onNewMessage: function (data) {
-			data.timeStr = new Date(data.time).toLocaleString();
 			this.$('#msgList').append(templates['edit/message'](data));
 
 			$('.messages .always-into-view')[0].scrollIntoView();

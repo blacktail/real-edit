@@ -8,6 +8,3 @@ dist*
 /logs/*
 !/logs/.gitignore
 *~*
-\.DS_*
-.idea
-
