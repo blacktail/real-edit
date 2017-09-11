@@ -1,14 +1,7 @@
-var httpsOptions = {
-    key: fs.readFileSync('/etc/letsencrypt/live/mianshi.tech/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/mianshi.tech/cert.pem')
-};
-
 var express = require('express'),
 	app = express(),
 	_ = require('lodash'),
 	async = require('async'),
-	server = require('https').createServer(httpsOptions, app),
-	io = require('socket.io').listen(server),
 	cons = require('consolidate'),
 	utils = require('./lib/utils'),
 	iolib = require('./lib/io'),
@@ -16,6 +9,14 @@ var express = require('express'),
 	Handlebars = require('handlebars'),
 	https = require('https'),
 	fs = require('fs');
+
+var httpsOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/mianshi.tech/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/mianshi.tech/cert.pem')
+};
+
+var server = require('https').createServer(httpsOptions, app);
+var io = require('socket.io').listen(server);
 
 
 
